@@ -1,96 +1,124 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Contest Platform Design System - All colors MUST be HSL */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
+    /* Base colors */
+    --background: 220 25% 6%;
+    --foreground: 210 40% 98%;
+    --card: 220 25% 8%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 25% 8%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 263 85% 65%;
     --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 15% 12%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 220 15% 15%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+    --border: 220 15% 20%;
+    --input: 220 15% 18%;
+    --ring: 263 85% 65%;
+    --radius: 0.75rem;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Contest-specific colors */
+    --contest-primary: 263 85% 65%;
+    --contest-secondary: 290 95% 70%;
+    --contest-accent: 195 100% 60%;
+    --contest-gold: 45 100% 60%;
+    --contest-silver: 240 10% 75%;
+    --contest-bronze: 30 60% 50%;
+  }
+}
 
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+@layer components {
+  /* Contest Button Variants */
+  .btn-contest {
+    @apply bg-contest-gradient text-white font-semibold px-6 py-3 rounded-lg 
+           transition-all duration-300 hover:scale-105 hover:shadow-xl 
+           focus:outline-none focus:ring-2 focus:ring-contest-accent;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+  .btn-contest-outline {
+    @apply border-2 border-contest-primary text-contest-primary font-semibold 
+           px-6 py-3 rounded-lg transition-all duration-300 hover:bg-contest-primary 
+           hover:text-white hover:scale-105;
+  }
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+  .btn-admin {
+    @apply bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold 
+           px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105;
+  }
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+  /* Contest Cards */
+  .contest-card {
+    @apply bg-card-gradient backdrop-blur-sm border border-border rounded-xl 
+           p-6 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl;
+  }
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+  .leaderboard-card {
+    @apply bg-card border border-border rounded-lg p-4 transition-all 
+           duration-300 hover:bg-muted/50;
+  }
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+  /* Ranking Badges */
+  .rank-gold {
+    @apply bg-gradient-to-r from-yellow-400 to-orange-500 text-black 
+           font-bold px-3 py-1 rounded-full text-sm;
+  }
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+  .rank-silver {
+    @apply bg-gradient-to-r from-gray-300 to-gray-400 text-black 
+           font-bold px-3 py-1 rounded-full text-sm;
+  }
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+  .rank-bronze {
+    @apply bg-gradient-to-r from-amber-600 to-orange-700 text-white 
+           font-bold px-3 py-1 rounded-full text-sm;
+  }
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+  .rank-default {
+    @apply bg-muted text-muted-foreground font-medium px-3 py-1 
+           rounded-full text-sm;
+  }
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  /* Score Display */
+  .score-display {
+    @apply text-2xl font-bold bg-gradient-to-r from-contest-primary 
+           to-contest-accent bg-clip-text text-transparent;
+  }
+
+  /* Prompt Input */
+  .prompt-input {
+    @apply w-full bg-input border border-border rounded-lg px-4 py-3 
+           text-foreground placeholder:text-muted-foreground focus:outline-none 
+           focus:ring-2 focus:ring-contest-accent transition-all duration-300;
+  }
+
+  /* Admin Panel Styles */
+  .admin-header {
+    @apply bg-gradient-to-r from-purple-900 to-blue-900 text-white p-6 rounded-lg;
+  }
+
+  /* Animation Classes */
+  .animate-fade-in {
+    @apply animate-slide-in;
+  }
+
+  .animate-glow {
+    @apply animate-pulse-glow;
+  }
+
+  .animate-float {
+    @apply animate-float;
   }
 }
 
@@ -100,6 +128,12 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground min-h-screen;
+    background-image: var(--mesh-gradient);
+    background-attachment: fixed;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 }
