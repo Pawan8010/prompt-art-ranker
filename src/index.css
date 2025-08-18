@@ -116,10 +116,6 @@
   .animate-glow {
     @apply animate-pulse-glow;
   }
-
-  .animate-float {
-    @apply animate-float;
-  }
 }
 
 @layer base {
