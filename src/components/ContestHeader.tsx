@@ -1,8 +1,30 @@
-
+import { useState, useEffect } from "react";
 import { Trophy, Target, Sparkles, Users, Crown, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const ContestHeader = () => {
+  // Get current target from localStorage
+  const getCurrentTarget = () => {
+    const stored = localStorage.getItem('contest-target');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        image: parsed.image || "https://picsum.photos/512/512?random=42",
+        prompt: parsed.prompt || "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+      };
+    }
+    return {
+      image: "https://picsum.photos/512/512?random=42",
+      prompt: "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+    };
+  };
+
+  const [currentTarget, setCurrentTarget] = useState(getCurrentTarget());
+
+  useEffect(() => {
+    setCurrentTarget(getCurrentTarget());
+  }, []);
+
   return (
     <div className="relative overflow-hidden min-h-screen flex items-center">
       {/* Enhanced background with multiple gradients */}
@@ -87,7 +109,30 @@ const ContestHeader = () => {
               </div>
             </Card>
           </div>
-          
+
+          {/* Preview of Current Challenge */}
+          <Card className="contest-card max-w-2xl mx-auto mb-16">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Target className="w-6 h-6 text-contest-accent" />
+                <h3 className="text-xl font-bold text-contest-accent">Current Challenge Preview</h3>
+              </div>
+              <div className="relative inline-block mb-4">
+                <img 
+                  src={currentTarget.image} 
+                  alt="Current contest challenge" 
+                  className="w-48 h-48 object-cover rounded-xl border-2 border-contest-accent/30 shadow-lg"
+                />
+                <div className="absolute -top-2 -right-2 bg-contest-accent text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+                  LIVE
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Can you recreate this with the perfect prompt?
+              </p>
+            </div>
+          </Card>
+
           {/* Enhanced Contest Stats */}
           <Card className="contest-card max-w-4xl mx-auto shimmer">
             <div className="relative">

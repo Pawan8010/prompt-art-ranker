@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -18,9 +17,28 @@ const PromptSubmission = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
 
-  // Reference image that users need to recreate
-  const referenceImage = "https://picsum.photos/512/512?random=42";
-  const referencePrompt = "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales";
+  // Get current target from localStorage
+  const getCurrentTarget = () => {
+    const stored = localStorage.getItem('contest-target');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        image: parsed.image || "https://picsum.photos/512/512?random=42",
+        prompt: parsed.prompt || "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+      };
+    }
+    return {
+      image: "https://picsum.photos/512/512?random=42",
+      prompt: "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+    };
+  };
+
+  const [currentTarget, setCurrentTarget] = useState(getCurrentTarget());
+
+  useEffect(() => {
+    // Update target when component mounts or when localStorage changes
+    setCurrentTarget(getCurrentTarget());
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +54,7 @@ const PromptSubmission = () => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Calculate similarity score based on prompt matching (simplified)
-      const similarity = calculateSimilarity(prompt, referencePrompt);
+      const similarity = calculateSimilarity(prompt, currentTarget.prompt);
       const baseScore = Math.floor(Math.random() * 30) + 50; // Base score 50-80
       const finalScore = Math.min(100, baseScore + similarity);
       
@@ -55,7 +73,7 @@ const PromptSubmission = () => {
       submissions.push({
         id: Date.now(),
         prompt,
-        referenceImage,
+        referenceImage: currentTarget.image,
         ...mockResult,
         timestamp: new Date().toISOString()
       });
@@ -103,7 +121,7 @@ const PromptSubmission = () => {
             <div>
               <h3 className="font-semibold mb-2 text-center">Reference Image</h3>
               <img 
-                src={referenceImage} 
+                src={currentTarget.image} 
                 alt="Reference to recreate" 
                 className="w-full rounded-lg shadow-lg"
               />
@@ -152,7 +170,7 @@ const PromptSubmission = () => {
         <div className="mb-8">
           <div className="relative max-w-md mx-auto">
             <img 
-              src={referenceImage} 
+              src={currentTarget.image} 
               alt="Reference image to recreate" 
               className="w-full rounded-lg shadow-xl border-4 border-contest-primary/20"
             />
@@ -160,9 +178,16 @@ const PromptSubmission = () => {
               Reference
             </div>
           </div>
-          <p className="text-center text-sm text-muted-foreground mt-4">
-            Your goal: Write a prompt that would generate something similar to this image
-          </p>
+          <div className="text-center mt-4">
+            <p className="text-sm text-muted-foreground mb-2">
+              Your goal: Write a prompt that would generate something similar to this image
+            </p>
+            {currentTarget.prompt !== "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales" && (
+              <p className="text-xs text-contest-accent italic">
+                Hint: {currentTarget.prompt}
+              </p>
+            )}
+          </div>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">

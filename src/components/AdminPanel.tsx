@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users } from "lucide-react";
+import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users, Upload, Save, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
 interface Submission {
@@ -24,14 +23,33 @@ const AdminPanel = () => {
   const [password, setPassword] = useState("");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [showImages, setShowImages] = useState(true);
+  const [newTargetImage, setNewTargetImage] = useState("");
+  const [newTargetPrompt, setNewTargetPrompt] = useState("");
 
   const ADMIN_PASSWORD = "Pawan@8010";
-  const referenceImage = "https://picsum.photos/512/512?random=42";
-  const referencePrompt = "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales";
+  
+  // Get current target image and prompt from localStorage, with fallbacks
+  const getCurrentTarget = () => {
+    const stored = localStorage.getItem('contest-target');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        image: parsed.image || "https://picsum.photos/512/512?random=42",
+        prompt: parsed.prompt || "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+      };
+    }
+    return {
+      image: "https://picsum.photos/512/512?random=42",
+      prompt: "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+    };
+  };
+
+  const [currentTarget, setCurrentTarget] = useState(getCurrentTarget());
 
   useEffect(() => {
     if (isAuthenticated) {
       loadSubmissions();
+      setCurrentTarget(getCurrentTarget());
     }
   }, [isAuthenticated]);
 
@@ -48,6 +66,32 @@ const AdminPanel = () => {
       toast.success("Welcome to the admin panel!");
     } else {
       toast.error("Invalid password");
+    }
+  };
+
+  const handleUpdateTarget = () => {
+    if (!newTargetImage.trim()) {
+      toast.error("Please enter a target image URL");
+      return;
+    }
+
+    const targetData = {
+      image: newTargetImage.trim(),
+      prompt: newTargetPrompt.trim() || "Recreate this image with your best descriptive prompt"
+    };
+
+    localStorage.setItem('contest-target', JSON.stringify(targetData));
+    setCurrentTarget(targetData);
+    setNewTargetImage("");
+    setNewTargetPrompt("");
+    toast.success("Target image updated successfully! Participants will now see the new challenge.");
+  };
+
+  const handleResetContest = () => {
+    if (confirm("Are you sure you want to clear all submissions? This action cannot be undone.")) {
+      localStorage.removeItem('contest-submissions');
+      setSubmissions([]);
+      toast.success("Contest reset successfully!");
     }
   };
 
@@ -187,35 +231,76 @@ const AdminPanel = () => {
           </div>
         </Card>
 
-        {/* Enhanced Reference Section */}
+        {/* Target Image Management Section */}
         <Card className="contest-card animate-slide-in">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <Target className="w-8 h-8 text-contest-accent" />
-              <h2 className="text-3xl font-bold bg-contest-gradient bg-clip-text text-transparent">
-                Contest Challenge
-              </h2>
-              <Target className="w-8 h-8 text-contest-accent" />
-            </div>
-            
-            <div className="mb-6">
-              <div className="inline-block relative">
+          <div className="flex items-center gap-4 mb-6">
+            <Target className="w-8 h-8 text-contest-accent" />
+            <h2 className="text-2xl font-bold bg-contest-gradient bg-clip-text text-transparent">
+              Contest Target Management
+            </h2>
+            <div className="flex-1 h-px bg-gradient-to-r from-contest-accent to-transparent"></div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-contest-primary">Current Target Image</h3>
+              <div className="relative">
                 <img 
-                  src={referenceImage} 
-                  alt="Contest reference image" 
-                  className="w-80 h-80 object-cover rounded-2xl border-4 border-contest-primary/30 shadow-2xl"
+                  src={currentTarget.image} 
+                  alt="Current target image" 
+                  className="w-full max-w-sm h-64 object-cover rounded-xl border-4 border-contest-primary/30 shadow-xl mx-auto"
                 />
-                <div className="absolute -top-4 -right-4 bg-contest-primary text-white px-4 py-2 rounded-full font-bold shadow-lg animate-pulse">
-                  🎯 TARGET
+                <div className="absolute -top-3 -right-3 bg-contest-primary text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                  ACTIVE
                 </div>
               </div>
+              <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+                <h4 className="font-semibold text-sm mb-2">Current Description:</h4>
+                <p className="text-sm text-muted-foreground italic">"{currentTarget.prompt}"</p>
+              </div>
             </div>
-            
-            <div className="max-w-3xl mx-auto">
-              <h3 className="text-xl font-semibold mb-3 text-contest-accent">Reference Prompt:</h3>
-              <p className="text-lg italic text-muted-foreground bg-muted/30 rounded-xl p-6 border-l-4 border-contest-accent">
-                "{referencePrompt}"
-              </p>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4 text-contest-accent">Update Target Image</h3>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="targetImage" className="block text-sm font-medium mb-2">
+                    New Target Image URL
+                  </label>
+                  <Input
+                    id="targetImage"
+                    type="url"
+                    value={newTargetImage}
+                    onChange={(e) => setNewTargetImage(e.target.value)}
+                    placeholder="https://example.com/new-target-image.jpg"
+                    className="prompt-input"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="targetPrompt" className="block text-sm font-medium mb-2">
+                    Reference Description (Optional)
+                  </label>
+                  <Input
+                    id="targetPrompt"
+                    value={newTargetPrompt}
+                    onChange={(e) => setNewTargetPrompt(e.target.value)}
+                    placeholder="Describe what participants should recreate..."
+                    className="prompt-input"
+                  />
+                </div>
+
+                <div className="flex gap-3">
+                  <Button onClick={handleUpdateTarget} className="btn-admin flex-1">
+                    <Save className="w-4 h-4 mr-2" />
+                    Update Target
+                  </Button>
+                  <Button onClick={handleResetContest} variant="destructive" className="flex-1">
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Reset Contest
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </Card>
@@ -302,7 +387,7 @@ const AdminPanel = () => {
                         <div className="text-center">
                           <h4 className="font-semibold mb-3 text-contest-accent">Reference Image</h4>
                           <img 
-                            src={submissions[0].referenceImage || referenceImage} 
+                            src={submissions[0].referenceImage || currentTarget.image} 
                             alt="Reference" 
                             className="w-full max-w-64 h-64 object-cover rounded-xl border-2 border-contest-accent/30 mx-auto"
                           />
@@ -396,7 +481,7 @@ const AdminPanel = () => {
                             <div>
                               <h4 className="font-semibold text-sm mb-3 text-contest-accent">Reference:</h4>
                               <img 
-                                src={submission.referenceImage || referenceImage} 
+                                src={submission.referenceImage || currentTarget.image} 
                                 alt="Reference" 
                                 className="w-full h-40 object-cover rounded-xl border border-contest-accent/30"
                               />
