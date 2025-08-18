@@ -3,19 +3,24 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Send, Sparkles } from "lucide-react";
+import { Loader2, Send, Sparkles, Target } from "lucide-react";
 import { toast } from "sonner";
 
 interface SubmissionResult {
   image: string;
   score: number;
   feedback: string;
+  similarity: number;
 }
 
 const PromptSubmission = () => {
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
+
+  // Reference image that users need to recreate
+  const referenceImage = "https://picsum.photos/512/512?random=42";
+  const referencePrompt = "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,23 +32,30 @@ const PromptSubmission = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call - replace with actual backend call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Simulate API call for image generation and similarity scoring
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Calculate similarity score based on prompt matching (simplified)
+      const similarity = calculateSimilarity(prompt, referencePrompt);
+      const baseScore = Math.floor(Math.random() * 30) + 50; // Base score 50-80
+      const finalScore = Math.min(100, baseScore + similarity);
       
       const mockResult: SubmissionResult = {
         image: `https://picsum.photos/512/512?random=${Date.now()}`,
-        score: Math.floor(Math.random() * 40) + 60, // Random score 60-100
-        feedback: "Great creativity! Your prompt generated a visually appealing and coherent image."
+        score: finalScore,
+        similarity: similarity,
+        feedback: generateFeedback(similarity, finalScore)
       };
       
       setResult(mockResult);
-      toast.success("Your image has been generated!");
+      toast.success("Your image has been generated and scored!");
       
-      // Save to localStorage (simulate backend storage)
+      // Save to localStorage
       const submissions = JSON.parse(localStorage.getItem('contest-submissions') || '[]');
       submissions.push({
         id: Date.now(),
         prompt,
+        referenceImage,
         ...mockResult,
         timestamp: new Date().toISOString()
       });
@@ -56,6 +68,20 @@ const PromptSubmission = () => {
     }
   };
 
+  const calculateSimilarity = (userPrompt: string, refPrompt: string): number => {
+    const userWords = userPrompt.toLowerCase().split(' ');
+    const refWords = refPrompt.toLowerCase().split(' ');
+    const commonWords = userWords.filter(word => refWords.includes(word));
+    return Math.round((commonWords.length / refWords.length) * 30); // Max 30 bonus points
+  };
+
+  const generateFeedback = (similarity: number, score: number): string => {
+    if (score >= 90) return "Excellent! Your prompt captures the essence of the reference image beautifully.";
+    if (score >= 75) return "Great work! Your prompt shows good understanding of the reference image.";
+    if (score >= 60) return "Good attempt! Try to include more specific details from the reference image.";
+    return "Keep trying! Focus on the key elements visible in the reference image.";
+  };
+
   const handleNewSubmission = () => {
     setResult(null);
     setPrompt("");
@@ -63,19 +89,33 @@ const PromptSubmission = () => {
 
   if (result) {
     return (
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4">
         <Card className="contest-card animate-fade-in">
           <div className="text-center mb-6">
             <h2 className="text-2xl font-bold mb-2">Your Result</h2>
             <div className="score-display mb-4">{result.score}/100</div>
+            <div className="text-sm text-muted-foreground">
+              Similarity Bonus: +{result.similarity} points
+            </div>
           </div>
           
-          <div className="mb-6">
-            <img 
-              src={result.image} 
-              alt="Generated result" 
-              className="w-full rounded-lg shadow-lg"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <h3 className="font-semibold mb-2 text-center">Reference Image</h3>
+              <img 
+                src={referenceImage} 
+                alt="Reference to recreate" 
+                className="w-full rounded-lg shadow-lg"
+              />
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2 text-center">Your Generated Image</h3>
+              <img 
+                src={result.image} 
+                alt="Your generated result" 
+                className="w-full rounded-lg shadow-lg"
+              />
+            </div>
           </div>
           
           <div className="bg-muted/50 rounded-lg p-4 mb-6">
@@ -84,13 +124,13 @@ const PromptSubmission = () => {
           </div>
           
           <div className="bg-contest-primary/10 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold mb-2 text-contest-primary">Feedback:</h3>
+            <h3 className="font-semibold mb-2 text-contest-primary">AI Feedback:</h3>
             <p className="text-sm">{result.feedback}</p>
           </div>
           
           <Button onClick={handleNewSubmission} className="btn-contest w-full">
             <Sparkles className="w-4 h-4 mr-2" />
-            Submit Another Prompt
+            Try Another Prompt
           </Button>
         </Card>
       </div>
@@ -98,12 +138,30 @@ const PromptSubmission = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4">
+    <div className="max-w-4xl mx-auto px-4">
       <Card className="contest-card">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold mb-2">Submit Your Prompt</h2>
+          <Target className="w-12 h-12 mx-auto mb-4 text-contest-primary" />
+          <h2 className="text-2xl font-bold mb-2">Recreate This Image</h2>
           <p className="text-muted-foreground">
-            Write a creative prompt to generate an image and get your score
+            Write a prompt that would generate an image similar to the reference below
+          </p>
+        </div>
+
+        {/* Reference Image Display */}
+        <div className="mb-8">
+          <div className="relative max-w-md mx-auto">
+            <img 
+              src={referenceImage} 
+              alt="Reference image to recreate" 
+              className="w-full rounded-lg shadow-xl border-4 border-contest-primary/20"
+            />
+            <div className="absolute -top-2 -right-2 bg-contest-primary text-white px-3 py-1 rounded-full text-sm font-semibold">
+              Reference
+            </div>
+          </div>
+          <p className="text-center text-sm text-muted-foreground mt-4">
+            Your goal: Write a prompt that would generate something similar to this image
           </p>
         </div>
         
@@ -116,12 +174,12 @@ const PromptSubmission = () => {
               id="prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe the image you want to create... Be creative and specific!"
+              placeholder="Describe what you see in the reference image... Be specific and detailed!"
               className="prompt-input min-h-32 resize-none"
               disabled={isLoading}
             />
             <div className="text-xs text-muted-foreground mt-2">
-              Tip: More specific and creative prompts tend to score higher!
+              Tip: The more accurately you describe the reference image, the higher your score!
             </div>
           </div>
           
@@ -133,12 +191,12 @@ const PromptSubmission = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating Image...
+                Generating & Scoring...
               </>
             ) : (
               <>
                 <Send className="w-4 h-4 mr-2" />
-                Generate & Score
+                Generate & Compare
               </>
             )}
           </Button>

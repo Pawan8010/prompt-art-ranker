@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3 } from "lucide-react";
+import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target } from "lucide-react";
 import { toast } from "sonner";
 
 interface Submission {
   id: number;
   prompt: string;
   image: string;
+  referenceImage: string;
   score: number;
   feedback: string;
+  similarity: number;
   timestamp: string;
 }
 
@@ -22,9 +24,10 @@ const AdminPanel = () => {
   const [password, setPassword] = useState("");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [showImages, setShowImages] = useState(true);
-  const [correctPrompt, setCorrectPrompt] = useState("A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales");
 
-  const ADMIN_PASSWORD = "admin123"; // In real app, this would be properly secured
+  const ADMIN_PASSWORD = "Pawan@8010"; // Updated admin password
+  const referenceImage = "https://picsum.photos/512/512?random=42";
+  const referencePrompt = "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -76,10 +79,11 @@ const AdminPanel = () => {
 
   const exportData = () => {
     const csvContent = [
-      ['Rank', 'Score', 'Prompt', 'Timestamp'],
+      ['Rank', 'Score', 'Similarity', 'Prompt', 'Timestamp'],
       ...submissions.map((sub, idx) => [
         idx + 1,
         sub.score,
+        sub.similarity || 0,
         `"${sub.prompt}"`,
         new Date(sub.timestamp).toLocaleString()
       ])
@@ -149,23 +153,35 @@ const AdminPanel = () => {
         </div>
       </Card>
 
-      {/* Correct Prompt Reference */}
+      {/* Reference Image and Prompt */}
       <Card className="contest-card">
-        <div className="flex items-start gap-4">
-          <BarChart3 className="w-6 h-6 text-contest-accent mt-1" />
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Reference Prompt</h3>
-            <p className="text-muted-foreground italic">"{correctPrompt}"</p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Use this as a reference to understand what makes a high-scoring prompt
-            </p>
+        <div className="flex items-start gap-4 mb-4">
+          <Target className="w-6 h-6 text-contest-accent mt-1" />
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold mb-2">Contest Reference</h3>
+            <p className="text-muted-foreground italic mb-4">"{referencePrompt}"</p>
           </div>
         </div>
+        <div className="flex justify-center">
+          <div className="relative">
+            <img 
+              src={referenceImage} 
+              alt="Contest reference image" 
+              className="w-64 h-64 object-cover rounded-lg border-4 border-contest-primary/20"
+            />
+            <div className="absolute -top-2 -right-2 bg-contest-primary text-white px-3 py-1 rounded-full text-sm font-semibold">
+              Reference
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground mt-4 text-center">
+          Participants try to recreate this image with their prompts
+        </p>
       </Card>
 
       {/* Statistics */}
       {submissions.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card className="contest-card text-center">
             <div className="score-display text-3xl mb-2">
               {Math.max(...submissions.map(s => s.score))}
@@ -180,6 +196,12 @@ const AdminPanel = () => {
           </Card>
           <Card className="contest-card text-center">
             <div className="score-display text-3xl mb-2">
+              {Math.max(...submissions.map(s => s.similarity || 0))}
+            </div>
+            <p className="text-muted-foreground">Best Similarity</p>
+          </Card>
+          <Card className="contest-card text-center">
+            <div className="score-display text-3xl mb-2">
               {submissions.length}
             </div>
             <p className="text-muted-foreground">Total Entries</p>
@@ -191,7 +213,7 @@ const AdminPanel = () => {
       <Card className="contest-card">
         <div className="flex items-center gap-3 mb-6">
           <Trophy className="w-6 h-6 text-contest-gold" />
-          <h2 className="text-2xl font-bold">Contest Leaderboard</h2>
+          <h2 className="text-2xl font-bold">Similarity Contest Leaderboard</h2>
         </div>
 
         {submissions.length === 0 ? (
@@ -211,7 +233,12 @@ const AdminPanel = () => {
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start mb-3">
-                      <div className="score-display text-xl">{submission.score}/100</div>
+                      <div>
+                        <div className="score-display text-xl">{submission.score}/100</div>
+                        <div className="text-sm text-contest-accent">
+                          Similarity: +{submission.similarity || 0} pts
+                        </div>
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         {new Date(submission.timestamp).toLocaleString()}
                       </div>
@@ -224,13 +251,23 @@ const AdminPanel = () => {
                       </div>
                       
                       {showImages && (
-                        <div>
-                          <h4 className="font-medium text-sm mb-2">Generated Image:</h4>
-                          <img 
-                            src={submission.image} 
-                            alt="Generated result" 
-                            className="w-32 h-32 object-cover rounded-lg border"
-                          />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <h4 className="font-medium text-sm mb-2">Reference:</h4>
+                            <img 
+                              src={submission.referenceImage || referenceImage} 
+                              alt="Reference" 
+                              className="w-32 h-32 object-cover rounded-lg border"
+                            />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-sm mb-2">Generated:</h4>
+                            <img 
+                              src={submission.image} 
+                              alt="Generated result" 
+                              className="w-32 h-32 object-cover rounded-lg border"
+                            />
+                          </div>
                         </div>
                       )}
                       
