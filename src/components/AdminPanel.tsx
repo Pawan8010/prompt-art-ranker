@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users, Upload, Save, RefreshCw } from "lucide-react";
+import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users, Upload, Save, RefreshCw, ImageIcon, Star } from "lucide-react";
 import { toast } from "sonner";
 
 interface Submission {
@@ -25,6 +26,7 @@ const AdminPanel = () => {
   const [showImages, setShowImages] = useState(true);
   const [newTargetImage, setNewTargetImage] = useState("");
   const [newTargetPrompt, setNewTargetPrompt] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
 
   const ADMIN_PASSWORD = "Pawan@8010";
   
@@ -69,9 +71,28 @@ const AdminPanel = () => {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setNewTargetImage(result);
+        setImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setNewTargetImage(url);
+    setImagePreview(url);
+  };
+
   const handleUpdateTarget = () => {
     if (!newTargetImage.trim()) {
-      toast.error("Please enter a target image URL");
+      toast.error("Please enter a target image URL or upload an image");
       return;
     }
 
@@ -84,7 +105,8 @@ const AdminPanel = () => {
     setCurrentTarget(targetData);
     setNewTargetImage("");
     setNewTargetPrompt("");
-    toast.success("Target image updated successfully! Participants will now see the new challenge.");
+    setImagePreview("");
+    toast.success("🎯 Target image updated successfully! Participants will now see the new challenge.");
   };
 
   const handleResetContest = () => {
@@ -145,25 +167,44 @@ const AdminPanel = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <Card className="contest-card animate-slide-in">
+      <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+        {/* Enhanced background */}
+        <div className="absolute inset-0 bg-mesh-gradient opacity-30"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-contest-primary/10 via-transparent to-contest-secondary/10"></div>
+        
+        {/* Floating decorations */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-contest-gold/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-contest-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-contest-primary/30 rounded-full blur-2xl animate-pulse delay-500"></div>
+        
+        <div className="w-full max-w-md relative z-10">
+          <Card className="contest-card animate-slide-in backdrop-blur-sm bg-card/90 border-2 border-contest-primary/20 shadow-2xl">
             <div className="text-center mb-8">
-              <div className="relative mx-auto w-24 h-24 mb-6">
-                <Crown className="w-24 h-24 text-contest-gold animate-float" />
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-contest-accent rounded-full flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
+              <div className="relative mx-auto w-32 h-32 mb-6">
+                <div className="absolute inset-0 bg-contest-gold/20 rounded-full blur-xl animate-pulse"></div>
+                <Crown className="w-32 h-32 text-contest-gold animate-float relative z-10" />
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-contest-accent rounded-full flex items-center justify-center animate-spin-slow">
+                  <Sparkles className="w-8 h-8 text-white" />
+                </div>
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-contest-secondary rounded-full flex items-center justify-center animate-pulse">
+                  <Star className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold mb-2 bg-contest-gradient bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold mb-4 bg-contest-gradient bg-clip-text text-transparent">
                 Admin Portal
               </h2>
-              <p className="text-muted-foreground">Enter your credentials to access the contest dashboard</p>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="h-1 w-12 bg-contest-gradient rounded-full"></div>
+                <Crown className="w-5 h-5 text-contest-gold" />
+                <div className="h-1 w-12 bg-contest-gradient rounded-full"></div>
+              </div>
+              <p className="text-muted-foreground text-lg">Enter your credentials to access the contest dashboard</p>
             </div>
             
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-foreground">
+                <label htmlFor="password" className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Crown className="w-4 h-4 text-contest-accent" />
                   Admin Password
                 </label>
                 <Input
@@ -172,12 +213,13 @@ const AdminPanel = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter admin password"
-                  className="prompt-input"
+                  className="prompt-input text-center text-lg py-3 border-2 border-contest-primary/30 focus:border-contest-primary"
                 />
               </div>
-              <Button type="submit" className="btn-admin w-full text-lg py-3">
-                <Crown className="w-5 h-5 mr-2" />
+              <Button type="submit" className="btn-admin w-full text-lg py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <Crown className="w-6 h-6 mr-3" />
                 Access Dashboard
+                <Sparkles className="w-6 h-6 ml-3 animate-pulse" />
               </Button>
             </form>
           </Card>
@@ -187,28 +229,37 @@ const AdminPanel = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 space-y-8">
+    <div className="min-h-screen bg-background relative">
+      {/* Enhanced background */}
+      <div className="absolute inset-0 bg-mesh-gradient opacity-20"></div>
+      
+      <div className="max-w-7xl mx-auto px-4 space-y-8 relative z-10">
         {/* Enhanced Admin Header */}
-        <Card className="admin-header animate-slide-in">
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="flex items-center gap-4">
+        <Card className="admin-header animate-slide-in relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-contest-primary/20 via-contest-accent/10 to-contest-secondary/20"></div>
+          <div className="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="flex items-center gap-6">
               <div className="relative">
-                <Trophy className="w-12 h-12 text-contest-gold animate-float" />
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-contest-accent rounded-full flex items-center justify-center">
-                  <Crown className="w-4 h-4 text-white" />
+                <div className="absolute inset-0 bg-contest-gold/30 rounded-full blur-xl animate-pulse"></div>
+                <Trophy className="w-16 h-16 text-contest-gold animate-float relative z-10" />
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-contest-accent rounded-full flex items-center justify-center animate-spin-slow">
+                  <Crown className="w-5 h-5 text-white" />
                 </div>
               </div>
               <div>
-                <h1 className="text-4xl font-bold mb-2 text-white">Contest Control Center</h1>
-                <div className="flex items-center gap-4 text-blue-100">
+                <h1 className="text-5xl font-bold mb-3 text-white">Contest Control Center</h1>
+                <div className="flex items-center gap-6 text-blue-100 text-lg">
                   <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
+                    <Users className="w-5 h-5" />
                     <span>Total Participants: {submissions.length}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" />
+                    <BarChart3 className="w-5 h-5" />
                     <span>Active Competition</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5 animate-pulse" />
+                    <span>Live Contest</span>
                   </div>
                 </div>
               </div>
@@ -218,12 +269,12 @@ const AdminPanel = () => {
                 onClick={() => setShowImages(!showImages)}
                 variant="outline"
                 size="sm"
-                className="text-white border-white/20 hover:bg-white/10"
+                className="text-white border-white/30 hover:bg-white/20 backdrop-blur-sm"
               >
                 {showImages ? <EyeOff className="w-4 h-4 mr-2" /> : <Eye className="w-4 h-4 mr-2" />}
                 {showImages ? 'Hide Images' : 'Show Images'}
               </Button>
-              <Button onClick={exportData} variant="outline" size="sm" className="text-white border-white/20 hover:bg-white/10">
+              <Button onClick={exportData} variant="outline" size="sm" className="text-white border-white/30 hover:bg-white/20 backdrop-blur-sm">
                 <Download className="w-4 h-4 mr-2" />
                 Export Results
               </Button>
@@ -231,74 +282,133 @@ const AdminPanel = () => {
           </div>
         </Card>
 
-        {/* Target Image Management Section */}
-        <Card className="contest-card animate-slide-in">
-          <div className="flex items-center gap-4 mb-6">
-            <Target className="w-8 h-8 text-contest-accent" />
-            <h2 className="text-2xl font-bold bg-contest-gradient bg-clip-text text-transparent">
-              Contest Target Management
-            </h2>
-            <div className="flex-1 h-px bg-gradient-to-r from-contest-accent to-transparent"></div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-contest-primary">Current Target Image</h3>
+        {/* Enhanced Target Image Management Section */}
+        <Card className="contest-card animate-slide-in relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-contest-accent/5 via-transparent to-contest-primary/5"></div>
+          <div className="relative">
+            <div className="flex items-center gap-4 mb-8">
               <div className="relative">
-                <img 
-                  src={currentTarget.image} 
-                  alt="Current target image" 
-                  className="w-full max-w-sm h-64 object-cover rounded-xl border-4 border-contest-primary/30 shadow-xl mx-auto"
-                />
-                <div className="absolute -top-3 -right-3 bg-contest-primary text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
-                  ACTIVE
-                </div>
+                <Target className="w-10 h-10 text-contest-accent animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-contest-gold rounded-full animate-ping"></div>
               </div>
-              <div className="mt-4 p-4 bg-muted/30 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Current Description:</h4>
-                <p className="text-sm text-muted-foreground italic">"{currentTarget.prompt}"</p>
-              </div>
+              <h2 className="text-3xl font-bold bg-contest-gradient bg-clip-text text-transparent">
+                Contest Target Management
+              </h2>
+              <div className="flex-1 h-1 bg-gradient-to-r from-contest-accent via-contest-primary to-transparent rounded-full"></div>
+              <Sparkles className="w-6 h-6 text-contest-secondary animate-pulse" />
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-4 text-contest-accent">Update Target Image</h3>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="targetImage" className="block text-sm font-medium mb-2">
-                    New Target Image URL
-                  </label>
-                  <Input
-                    id="targetImage"
-                    type="url"
-                    value={newTargetImage}
-                    onChange={(e) => setNewTargetImage(e.target.value)}
-                    placeholder="https://example.com/new-target-image.jpg"
-                    className="prompt-input"
-                  />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-8">
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h3 className="text-2xl font-semibold mb-6 text-contest-primary flex items-center justify-center gap-3">
+                    <ImageIcon className="w-6 h-6" />
+                    Current Target Image
+                  </h3>
+                  <div className="relative mx-auto max-w-sm">
+                    <img 
+                      src={currentTarget.image} 
+                      alt="Current target image" 
+                      className="w-full h-80 object-cover rounded-2xl border-4 border-contest-primary/30 shadow-2xl transition-transform duration-300 hover:scale-105"
+                    />
+                    <div className="absolute -top-4 -right-4 bg-contest-primary text-white px-4 py-2 rounded-full text-sm font-bold animate-pulse shadow-xl">
+                      🎯 ACTIVE
+                    </div>
+                    <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-contest-gold text-white px-4 py-1 rounded-full text-xs font-bold shadow-lg">
+                      LIVE TARGET
+                    </div>
+                  </div>
+                  <div className="mt-6 p-6 bg-gradient-to-r from-muted/30 to-muted/10 rounded-xl border border-contest-primary/20">
+                    <h4 className="font-semibold text-lg mb-3 text-contest-primary flex items-center justify-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      Current Description
+                    </h4>
+                    <p className="text-muted-foreground italic text-lg leading-relaxed">"{currentTarget.prompt}"</p>
+                  </div>
                 </div>
-                
-                <div>
-                  <label htmlFor="targetPrompt" className="block text-sm font-medium mb-2">
-                    Reference Description (Optional)
-                  </label>
-                  <Input
-                    id="targetPrompt"
-                    value={newTargetPrompt}
-                    onChange={(e) => setNewTargetPrompt(e.target.value)}
-                    placeholder="Describe what participants should recreate..."
-                    className="prompt-input"
-                  />
-                </div>
+              </div>
 
-                <div className="flex gap-3">
-                  <Button onClick={handleUpdateTarget} className="btn-admin flex-1">
-                    <Save className="w-4 h-4 mr-2" />
-                    Update Target
-                  </Button>
-                  <Button onClick={handleResetContest} variant="destructive" className="flex-1">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Reset Contest
-                  </Button>
+              <div className="space-y-6">
+                <h3 className="text-2xl font-semibold text-contest-accent flex items-center gap-3">
+                  <Upload className="w-6 h-6" />
+                  Update Target Image
+                </h3>
+                
+                <div className="space-y-6">
+                  {/* Image Upload Section */}
+                  <div className="space-y-4">
+                    <label className="block text-sm font-medium mb-2 text-contest-primary">
+                      Upload New Image
+                    </label>
+                    <div className="border-2 border-dashed border-contest-accent/30 rounded-xl p-6 text-center hover:border-contest-accent/50 transition-colors duration-300">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        id="imageUpload"
+                      />
+                      <label htmlFor="imageUpload" className="cursor-pointer">
+                        <Upload className="w-12 h-12 mx-auto mb-4 text-contest-accent" />
+                        <p className="text-contest-accent font-medium">Click to upload image</p>
+                        <p className="text-sm text-muted-foreground mt-1">PNG, JPG, GIF up to 10MB</p>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="text-center text-muted-foreground font-medium">OR</div>
+
+                  {/* URL Input Section */}
+                  <div>
+                    <label htmlFor="targetImage" className="block text-sm font-medium mb-2 text-contest-primary">
+                      Image URL
+                    </label>
+                    <Input
+                      id="targetImage"
+                      type="url"
+                      value={newTargetImage}
+                      onChange={handleImageUrlChange}
+                      placeholder="https://example.com/new-target-image.jpg"
+                      className="prompt-input border-2 border-contest-accent/30 focus:border-contest-accent"
+                    />
+                  </div>
+
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-contest-secondary">Preview:</h4>
+                      <img 
+                        src={imagePreview} 
+                        alt="Preview" 
+                        className="w-full max-w-xs h-48 object-cover rounded-xl border-2 border-contest-secondary/30 shadow-lg mx-auto"
+                      />
+                    </div>
+                  )}
+                  
+                  <div>
+                    <label htmlFor="targetPrompt" className="block text-sm font-medium mb-2 text-contest-primary">
+                      Reference Description (Optional)
+                    </label>
+                    <Input
+                      id="targetPrompt"
+                      value={newTargetPrompt}
+                      onChange={(e) => setNewTargetPrompt(e.target.value)}
+                      placeholder="Describe what participants should recreate..."
+                      className="prompt-input border-2 border-contest-primary/30 focus:border-contest-primary"
+                    />
+                  </div>
+
+                  <div className="flex gap-4 pt-4">
+                    <Button onClick={handleUpdateTarget} className="btn-admin flex-1 text-lg py-3 shadow-xl hover:shadow-2xl">
+                      <Save className="w-5 h-5 mr-2" />
+                      Update Target
+                      <Target className="w-5 h-5 ml-2" />
+                    </Button>
+                    <Button onClick={handleResetContest} variant="destructive" className="flex-1 text-lg py-3 shadow-xl hover:shadow-2xl">
+                      <RefreshCw className="w-5 h-5 mr-2" />
+                      Reset Contest
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -308,104 +418,121 @@ const AdminPanel = () => {
         {/* Enhanced Statistics Dashboard */}
         {submissions.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 animate-slide-in">
-            <Card className="contest-card text-center hover:scale-105 transition-transform duration-300">
-              <div className="flex items-center justify-center mb-3">
-                <Trophy className="w-8 h-8 text-contest-gold mr-2" />
-                <span className="text-sm text-muted-foreground">Best Score</span>
+            <Card className="contest-card text-center hover:scale-105 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-contest-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center justify-center mb-4">
+                  <Trophy className="w-10 h-10 text-contest-gold mr-2 animate-pulse" />
+                  <span className="text-sm text-muted-foreground font-medium">Best Score</span>
+                </div>
+                <div className="score-display text-5xl mb-3 text-contest-gold">
+                  {Math.max(...submissions.map(s => s.score))}
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">Out of 100</p>
               </div>
-              <div className="score-display text-4xl mb-2">
-                {Math.max(...submissions.map(s => s.score))}
-              </div>
-              <p className="text-xs text-muted-foreground">Out of 100</p>
             </Card>
             
-            <Card className="contest-card text-center hover:scale-105 transition-transform duration-300">
-              <div className="flex items-center justify-center mb-3">
-                <BarChart3 className="w-8 h-8 text-contest-accent mr-2" />
-                <span className="text-sm text-muted-foreground">Average</span>
+            <Card className="contest-card text-center hover:scale-105 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-contest-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center justify-center mb-4">
+                  <BarChart3 className="w-10 h-10 text-contest-accent mr-2" />
+                  <span className="text-sm text-muted-foreground font-medium">Average</span>
+                </div>
+                <div className="score-display text-5xl mb-3 text-contest-accent">
+                  {Math.round(submissions.reduce((sum, s) => sum + s.score, 0) / submissions.length)}
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">Mean Score</p>
               </div>
-              <div className="score-display text-4xl mb-2">
-                {Math.round(submissions.reduce((sum, s) => sum + s.score, 0) / submissions.length)}
-              </div>
-              <p className="text-xs text-muted-foreground">Mean Score</p>
             </Card>
             
-            <Card className="contest-card text-center hover:scale-105 transition-transform duration-300">
-              <div className="flex items-center justify-center mb-3">
-                <Target className="w-8 h-8 text-contest-primary mr-2" />
-                <span className="text-sm text-muted-foreground">Top Similarity</span>
+            <Card className="contest-card text-center hover:scale-105 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-contest-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center justify-center mb-4">
+                  <Target className="w-10 h-10 text-contest-primary mr-2 animate-pulse" />
+                  <span className="text-sm text-muted-foreground font-medium">Top Similarity</span>
+                </div>
+                <div className="score-display text-5xl mb-3 text-contest-primary">
+                  {Math.max(...submissions.map(s => s.similarity || 0))}%
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">Match Rate</p>
               </div>
-              <div className="score-display text-4xl mb-2">
-                {Math.max(...submissions.map(s => s.similarity || 0))}%
-              </div>
-              <p className="text-xs text-muted-foreground">Match Rate</p>
             </Card>
             
-            <Card className="contest-card text-center hover:scale-105 transition-transform duration-300">
-              <div className="flex items-center justify-center mb-3">
-                <Users className="w-8 h-8 text-contest-secondary mr-2" />
-                <span className="text-sm text-muted-foreground">Participants</span>
+            <Card className="contest-card text-center hover:scale-105 transition-all duration-300 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-contest-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative">
+                <div className="flex items-center justify-center mb-4">
+                  <Users className="w-10 h-10 text-contest-secondary mr-2" />
+                  <span className="text-sm text-muted-foreground font-medium">Participants</span>
+                </div>
+                <div className="score-display text-5xl mb-3 text-contest-secondary">
+                  {submissions.length}
+                </div>
+                <p className="text-xs text-muted-foreground font-medium">Total Entries</p>
               </div>
-              <div className="score-display text-4xl mb-2">
-                {submissions.length}
-              </div>
-              <p className="text-xs text-muted-foreground">Total Entries</p>
             </Card>
           </div>
         )}
 
         {/* Winner Showcase */}
         {submissions.length > 0 && (
-          <Card className="contest-card animate-slide-in">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center gap-3 mb-6">
-                <Crown className="w-10 h-10 text-contest-gold animate-pulse" />
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-contest-gold to-contest-secondary bg-clip-text text-transparent">
+          <Card className="contest-card animate-slide-in relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-contest-gold/5 via-transparent to-contest-secondary/5"></div>
+            <div className="relative text-center mb-8">
+              <div className="flex items-center justify-center gap-4 mb-8">
+                <Crown className="w-12 h-12 text-contest-gold animate-pulse" />
+                <h2 className="text-5xl font-bold bg-gradient-to-r from-contest-gold via-contest-secondary to-contest-gold bg-clip-text text-transparent">
                   🏆 CHAMPION 🏆
                 </h2>
-                <Crown className="w-10 h-10 text-contest-gold animate-pulse" />
+                <Crown className="w-12 h-12 text-contest-gold animate-pulse" />
               </div>
               
               {submissions[0] && (
-                <div className="max-w-4xl mx-auto">
-                  <div className="bg-gradient-to-r from-contest-gold/20 to-contest-secondary/20 rounded-2xl p-8 border-4 border-contest-gold/30">
-                    <div className="flex items-center justify-center gap-4 mb-6">
-                      <Badge className="rank-gold text-lg px-6 py-2 animate-pulse">
+                <div className="max-w-5xl mx-auto">
+                  <div className="bg-gradient-to-r from-contest-gold/20 via-contest-secondary/10 to-contest-gold/20 rounded-3xl p-10 border-4 border-contest-gold/30 shadow-2xl">
+                    <div className="flex items-center justify-center gap-6 mb-8">
+                      <Badge className="rank-gold text-xl px-8 py-3 animate-pulse shadow-xl">
                         🏆 WINNER - SCORE: {submissions[0].score}/100
                       </Badge>
                     </div>
                     
-                    <div className="mb-6">
-                      <h3 className="text-xl font-semibold mb-3 text-contest-gold">Winning Prompt:</h3>
-                      <p className="text-lg italic bg-contest-gold/10 rounded-xl p-6 border border-contest-gold/30">
+                    <div className="mb-8">
+                      <h3 className="text-2xl font-semibold mb-4 text-contest-gold flex items-center justify-center gap-3">
+                        <Sparkles className="w-6 h-6 animate-pulse" />
+                        Winning Prompt
+                        <Star className="w-6 h-6 animate-pulse" />
+                      </h3>
+                      <p className="text-xl italic bg-contest-gold/10 rounded-2xl p-8 border-2 border-contest-gold/30 leading-relaxed">
                         "{submissions[0].prompt}"
                       </p>
                     </div>
                     
                     {showImages && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
                         <div className="text-center">
-                          <h4 className="font-semibold mb-3 text-contest-accent">Reference Image</h4>
+                          <h4 className="font-semibold mb-4 text-contest-accent text-lg">Reference Image</h4>
                           <img 
                             src={submissions[0].referenceImage || currentTarget.image} 
                             alt="Reference" 
-                            className="w-full max-w-64 h-64 object-cover rounded-xl border-2 border-contest-accent/30 mx-auto"
+                            className="w-full max-w-80 h-80 object-cover rounded-2xl border-4 border-contest-accent/30 mx-auto shadow-2xl hover:scale-105 transition-transform duration-300"
                           />
                         </div>
                         <div className="text-center">
-                          <h4 className="font-semibold mb-3 text-contest-gold">Winner's Creation</h4>
+                          <h4 className="font-semibold mb-4 text-contest-gold text-lg">Winner's Creation</h4>
                           <img 
                             src={submissions[0].image} 
                             alt="Winner's result" 
-                            className="w-full max-w-64 h-64 object-cover rounded-xl border-4 border-contest-gold/50 mx-auto shadow-2xl"
+                            className="w-full max-w-80 h-80 object-cover rounded-2xl border-4 border-contest-gold/50 mx-auto shadow-2xl hover:scale-105 transition-transform duration-300"
                           />
                         </div>
                       </div>
                     )}
                     
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">🎉 Congratulations to our champion! 🎉</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-lg text-contest-gold mb-3 font-semibold">🎉 Congratulations to our champion! 🎉</p>
+                      <p className="text-sm text-muted-foreground">
                         Submitted: {new Date(submissions[0].timestamp).toLocaleString()}
                       </p>
                     </div>
@@ -417,102 +544,109 @@ const AdminPanel = () => {
         )}
 
         {/* Full Leaderboard at the End */}
-        <Card className="contest-card animate-slide-in">
-          <div className="flex items-center gap-4 mb-8">
-            <Trophy className="w-8 h-8 text-contest-gold" />
-            <h2 className="text-3xl font-bold bg-contest-gradient bg-clip-text text-transparent">
-              Complete Leaderboard
-            </h2>
-            <div className="flex-1 h-px bg-gradient-to-r from-contest-primary to-transparent"></div>
-          </div>
-
-          {submissions.length === 0 ? (
-            <div className="text-center py-16">
-              <Trophy className="w-16 h-16 mx-auto mb-6 text-muted-foreground/50" />
-              <h3 className="text-xl font-semibold mb-2">No Submissions Yet</h3>
-              <p className="text-muted-foreground">The competition is just getting started!</p>
+        <Card className="contest-card animate-slide-in relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-contest-primary/5 via-transparent to-contest-accent/5"></div>
+          <div className="relative">
+            <div className="flex items-center gap-4 mb-10">
+              <Trophy className="w-10 h-10 text-contest-gold animate-pulse" />
+              <h2 className="text-4xl font-bold bg-contest-gradient bg-clip-text text-transparent">
+                Complete Leaderboard
+              </h2>
+              <div className="flex-1 h-1 bg-gradient-to-r from-contest-primary via-contest-accent to-transparent rounded-full"></div>
+              <Medal className="w-8 h-8 text-contest-bronze" />
             </div>
-          ) : (
-            <div className="space-y-6">
-              {submissions.map((submission, index) => (
-                <Card 
-                  key={submission.id} 
-                  className={`leaderboard-card hover:scale-[1.02] transition-all duration-300 ${
-                    index === 0 ? 'ring-2 ring-contest-gold/50 bg-contest-gold/5' :
-                    index === 1 ? 'ring-2 ring-contest-silver/50 bg-contest-silver/5' :
-                    index === 2 ? 'ring-2 ring-contest-bronze/50 bg-contest-bronze/5' : ''
-                  }`}
-                >
-                  <div className="flex items-start gap-6">
-                    <div className="flex flex-col items-center gap-3 min-w-24">
-                      {getRankIcon(index)}
-                      {getRankBadge(index)}
-                      <div className="text-center">
-                        <div className="score-display text-2xl">{submission.score}</div>
-                        <div className="text-xs text-muted-foreground">/ 100</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="text-sm text-contest-accent font-medium">
-                            Similarity: {submission.similarity || 0}% match
-                          </div>
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {new Date(submission.timestamp).toLocaleString()}
+
+            {submissions.length === 0 ? (
+              <div className="text-center py-20">
+                <Trophy className="w-20 h-20 mx-auto mb-8 text-muted-foreground/50" />
+                <h3 className="text-2xl font-semibold mb-4">No Submissions Yet</h3>
+                <p className="text-muted-foreground text-lg">The competition is just getting started!</p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {submissions.map((submission, index) => (
+                  <Card 
+                    key={submission.id} 
+                    className={`leaderboard-card hover:scale-[1.02] transition-all duration-300 relative overflow-hidden ${
+                      index === 0 ? 'ring-4 ring-contest-gold/50 bg-contest-gold/5 shadow-2xl' :
+                      index === 1 ? 'ring-4 ring-contest-silver/50 bg-contest-silver/5 shadow-xl' :
+                      index === 2 ? 'ring-4 ring-contest-bronze/50 bg-contest-bronze/5 shadow-lg' : 'shadow-md'
+                    }`}
+                  >
+                    {index < 3 && (
+                      <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-contest-gold via-contest-silver to-contest-bronze"></div>
+                    )}
+                    <div className="flex items-start gap-8 p-2">
+                      <div className="flex flex-col items-center gap-4 min-w-32">
+                        {getRankIcon(index)}
+                        {getRankBadge(index)}
+                        <div className="text-center">
+                          <div className="score-display text-3xl">{submission.score}</div>
+                          <div className="text-xs text-muted-foreground font-medium">/ 100</div>
                         </div>
                       </div>
                       
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-contest-accent" />
-                            Participant's Prompt:
-                          </h4>
-                          <p className="text-sm text-muted-foreground italic bg-muted/30 p-4 rounded-lg border-l-4 border-contest-accent/30">
-                            "{submission.prompt}"
-                          </p>
-                        </div>
-                        
-                        {showImages && (
-                          <div className="grid grid-cols-2 gap-6">
-                            <div>
-                              <h4 className="font-semibold text-sm mb-3 text-contest-accent">Reference:</h4>
-                              <img 
-                                src={submission.referenceImage || currentTarget.image} 
-                                alt="Reference" 
-                                className="w-full h-40 object-cover rounded-xl border border-contest-accent/30"
-                              />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-sm mb-3 text-contest-primary">Generated:</h4>
-                              <img 
-                                src={submission.image} 
-                                alt="Generated result" 
-                                className="w-full h-40 object-cover rounded-xl border border-contest-primary/30 shadow-lg"
-                              />
+                      <div className="flex-1 min-w-0 space-y-6">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-4">
+                            <div className="text-sm text-contest-accent font-semibold bg-contest-accent/10 px-3 py-1 rounded-full">
+                              Similarity: {submission.similarity || 0}% match
                             </div>
                           </div>
-                        )}
+                          <div className="text-xs text-muted-foreground bg-muted/50 px-3 py-1 rounded-full">
+                            {new Date(submission.timestamp).toLocaleString()}
+                          </div>
+                        </div>
                         
-                        <div>
-                          <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                            <BarChart3 className="w-4 h-4 text-contest-secondary" />
-                            AI Analysis:
-                          </h4>
-                          <p className="text-sm text-muted-foreground bg-muted/20 p-4 rounded-lg">
-                            {submission.feedback}
-                          </p>
+                        <div className="space-y-6">
+                          <div>
+                            <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                              <Sparkles className="w-5 h-5 text-contest-accent" />
+                              Participant's Prompt:
+                            </h4>
+                            <p className="text-muted-foreground italic bg-muted/30 p-6 rounded-xl border-l-4 border-contest-accent/30 text-lg leading-relaxed">
+                              "{submission.prompt}"
+                            </p>
+                          </div>
+                          
+                          {showImages && (
+                            <div className="grid grid-cols-2 gap-8">
+                              <div>
+                                <h4 className="font-semibold text-lg mb-4 text-contest-accent">Reference:</h4>
+                                <img 
+                                  src={submission.referenceImage || currentTarget.image} 
+                                  alt="Reference" 
+                                  className="w-full h-48 object-cover rounded-xl border-2 border-contest-accent/30 shadow-lg hover:scale-105 transition-transform duration-300"
+                                />
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-lg mb-4 text-contest-primary">Generated:</h4>
+                                <img 
+                                  src={submission.image} 
+                                  alt="Generated result" 
+                                  className="w-full h-48 object-cover rounded-xl border-2 border-contest-primary/30 shadow-lg hover:scale-105 transition-transform duration-300"
+                                />
+                              </div>
+                            </div>
+                          )}
+                          
+                          <div>
+                            <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                              <BarChart3 className="w-5 h-5 text-contest-secondary" />
+                              AI Analysis:
+                            </h4>
+                            <p className="text-muted-foreground bg-muted/20 p-6 rounded-xl text-lg leading-relaxed">
+                              {submission.feedback}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </Card>
       </div>
     </div>
