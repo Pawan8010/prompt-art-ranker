@@ -55,42 +55,46 @@
 @layer components {
   /* Enhanced Contest Theme Styles */
   .contest-card {
-    @apply bg-card/95 backdrop-blur-2xl border-2 border-primary/30 rounded-3xl p-8 shadow-4xl transition-all duration-500 hover:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] hover:border-primary/50 hover:scale-[1.02];
-    background: linear-gradient(135deg, hsl(var(--card))/95% 0%, hsl(var(--card))/80% 100%);
+    @apply backdrop-blur-2xl border-2 border-primary/30 rounded-3xl p-8 shadow-4xl transition-all duration-500 hover:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.8)] hover:border-primary/50 hover:scale-[1.02];
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.8) 100%);
     box-shadow: 0 35px 70px -12px rgba(0, 0, 0, 0.7), 
                 0 0 0 1px rgba(255, 255, 255, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   .admin-header {
-    @apply bg-gradient-to-r from-primary via-accent to-secondary text-white p-12 rounded-3xl shadow-4xl border-4 border-primary/40;
+    @apply text-white p-12 rounded-3xl shadow-4xl border-4 border-primary/40;
     background: linear-gradient(135deg, hsl(var(--contest-primary)) 0%, hsl(var(--contest-accent)) 30%, hsl(var(--contest-secondary)) 70%, hsl(var(--contest-primary)) 100%);
     box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.9);
   }
 
   .leaderboard-card {
-    @apply bg-card/98 backdrop-blur-3xl border-2 border-primary/40 rounded-3xl p-8 shadow-3xl hover:shadow-4xl transition-all duration-500;
-    background: linear-gradient(135deg, hsl(var(--card))/98% 0%, hsl(var(--card))/85% 100%);
+    @apply backdrop-blur-3xl border-2 border-primary/40 rounded-3xl p-8 shadow-3xl hover:shadow-4xl transition-all duration-500;
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.85) 100%);
   }
 
   .prompt-input {
-    @apply bg-input/95 backdrop-blur-xl border-2 border-primary/40 rounded-2xl px-6 py-4 text-lg focus:border-primary focus:ring-4 focus:ring-primary/30 transition-all duration-500 hover:border-primary/60 hover:shadow-lg;
+    @apply backdrop-blur-xl border-2 border-primary/40 rounded-2xl px-6 py-4 text-lg focus:border-primary focus:ring-4 focus:ring-primary/30 transition-all duration-500 hover:border-primary/60 hover:shadow-lg;
+    background-color: hsl(var(--input) / 0.95);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .btn-contest {
-    @apply bg-gradient-to-r from-primary via-accent to-primary text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 text-lg relative overflow-hidden;
+    @apply text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 text-lg relative overflow-hidden;
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 50%, hsl(var(--primary)) 100%);
     background-size: 200% 200%;
     animation: gradient-shift 4s ease infinite;
   }
 
   .btn-admin {
-    @apply bg-gradient-to-r from-contest-primary via-contest-accent to-contest-secondary text-white font-bold py-3 px-6 rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500;
+    @apply text-white font-bold py-3 px-6 rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500;
+    background: linear-gradient(135deg, hsl(var(--contest-primary)) 0%, hsl(var(--contest-accent)) 50%, hsl(var(--contest-secondary)) 100%);
   }
 
   .score-display {
-    @apply font-black bg-gradient-to-r from-contest-gold via-yellow-400 to-contest-gold bg-clip-text text-transparent;
-    text-shadow: 0 0 40px hsl(var(--contest-gold))/40%;
+    @apply font-black bg-clip-text text-transparent;
+    background: linear-gradient(135deg, hsl(var(--contest-gold)) 0%, #fbbf24 50%, hsl(var(--contest-gold)) 100%);
+    text-shadow: 0 0 40px hsl(var(--contest-gold) / 0.4);
     background-size: 200% 200%;
     animation: gradient-shift 3s ease infinite;
   }
@@ -108,39 +112,47 @@
 
   .bg-mesh-gradient {
     background-image: 
-      radial-gradient(circle at 25% 25%, hsl(var(--contest-primary))/20% 0%, transparent 50%), 
-      radial-gradient(circle at 75% 75%, hsl(var(--contest-accent))/20% 0%, transparent 50%),
-      radial-gradient(circle at 50% 50%, hsl(var(--contest-secondary))/15% 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, hsl(var(--contest-gold))/12% 0%, transparent 40%),
-      radial-gradient(circle at 20% 80%, hsl(var(--contest-accent))/12% 0%, transparent 40%),
-      radial-gradient(circle at 90% 90%, hsl(var(--contest-primary))/10% 0%, transparent 30%);
+      radial-gradient(circle at 25% 25%, hsl(var(--contest-primary) / 0.2) 0%, transparent 50%), 
+      radial-gradient(circle at 75% 75%, hsl(var(--contest-accent) / 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, hsl(var(--contest-secondary) / 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(var(--contest-gold) / 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 20% 80%, hsl(var(--contest-accent) / 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 90% 90%, hsl(var(--contest-primary) / 0.1) 0%, transparent 30%);
   }
 
   /* Enhanced Badge Styles */
   .rank-gold {
-    @apply bg-gradient-to-r from-contest-gold via-yellow-400 to-contest-gold text-black font-black px-8 py-3 rounded-full shadow-3xl border-2 border-contest-gold/60 relative overflow-hidden;
+    @apply text-black font-black px-8 py-3 rounded-full shadow-3xl border-2 relative overflow-hidden;
+    background: linear-gradient(135deg, hsl(var(--contest-gold)) 0%, #fbbf24 50%, hsl(var(--contest-gold)) 100%);
+    border-color: hsl(var(--contest-gold) / 0.6);
     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    box-shadow: 0 0 50px hsl(var(--contest-gold))/70%, 
+    box-shadow: 0 0 50px hsl(var(--contest-gold) / 0.7), 
                 inset 0 2px 0 rgba(255,255,255,0.4),
                 0 15px 30px rgba(0,0,0,0.3);
   }
 
   .rank-silver {
-    @apply bg-gradient-to-r from-contest-silver via-gray-200 to-contest-silver text-gray-800 font-black px-8 py-3 rounded-full shadow-2xl border-2 border-contest-silver/60;
-    box-shadow: 0 0 40px hsl(var(--contest-silver))/60%, 
+    @apply text-gray-800 font-black px-8 py-3 rounded-full shadow-2xl border-2;
+    background: linear-gradient(135deg, hsl(var(--contest-silver)) 0%, #e5e7eb 50%, hsl(var(--contest-silver)) 100%);
+    border-color: hsl(var(--contest-silver) / 0.6);
+    box-shadow: 0 0 40px hsl(var(--contest-silver) / 0.6), 
                 inset 0 2px 0 rgba(255,255,255,0.4),
                 0 12px 24px rgba(0,0,0,0.2);
   }
 
   .rank-bronze {
-    @apply bg-gradient-to-r from-contest-bronze via-orange-400 to-contest-bronze text-white font-black px-8 py-3 rounded-full shadow-2xl border-2 border-contest-bronze/60;
-    box-shadow: 0 0 40px hsl(var(--contest-bronze))/60%, 
+    @apply text-white font-black px-8 py-3 rounded-full shadow-2xl border-2;
+    background: linear-gradient(135deg, hsl(var(--contest-bronze)) 0%, #fb923c 50%, hsl(var(--contest-bronze)) 100%);
+    border-color: hsl(var(--contest-bronze) / 0.6);
+    box-shadow: 0 0 40px hsl(var(--contest-bronze) / 0.6), 
                 inset 0 2px 0 rgba(255,255,255,0.3),
                 0 12px 24px rgba(0,0,0,0.2);
   }
 
   .rank-default {
-    @apply bg-gradient-to-r from-muted to-muted-foreground/30 text-foreground font-bold px-6 py-2 rounded-full shadow-xl border border-muted-foreground/40;
+    @apply text-foreground font-bold px-6 py-2 rounded-full shadow-xl border;
+    background: linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.3) 100%);
+    border-color: hsl(var(--muted-foreground) / 0.4);
   }
 
   /* Enhanced Hover Effects */
