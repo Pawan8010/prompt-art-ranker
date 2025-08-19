@@ -1,42 +1,48 @@
+
 import { useState, useEffect } from "react";
-import Registration from "@/components/Registration";
-import PromptSubmission from "@/components/PromptSubmission";
 import ContestHeader from "@/components/ContestHeader";
+import PromptSubmission from "@/components/PromptSubmission";
+import AdminPanel from "@/components/AdminPanel";
+import Navigation from "@/components/Navigation";
+import Registration from "@/components/Registration";
 
 const Index = () => {
+  const [currentView, setCurrentView] = useState<'home' | 'admin'>('home');
   const [isRegistered, setIsRegistered] = useState(false);
-  const [userData, setUserData] = useState<{ name: string; email: string } | null>(null);
 
   useEffect(() => {
-    // Check if user data exists in localStorage
-    const storedUserData = localStorage.getItem('participant-data');
-    if (storedUserData) {
-      const parsed = JSON.parse(storedUserData);
-      setUserData(parsed);
+    // Check if user is already registered
+    const participantData = localStorage.getItem('participant-data');
+    if (participantData) {
       setIsRegistered(true);
     }
   }, []);
 
   const handleRegistrationComplete = (userData: { name: string; email: string }) => {
-    setUserData(userData);
     setIsRegistered(true);
   };
 
-  const handleLogout = () => {
-    // Clear user session but keep participant data for potential re-login
-    setIsRegistered(false);
-    setUserData(null);
-  };
-
-  // Always show registration for non-registered users or if explicitly logged out
-  if (!isRegistered || !userData) {
+  // If user is not registered and trying to access home, show registration
+  if (!isRegistered && currentView === 'home') {
     return <Registration onRegistrationComplete={handleRegistrationComplete} />;
   }
 
   return (
-    <div className="min-h-screen bg-mesh-gradient">
-      <ContestHeader onLogout={handleLogout} participantName={userData.name} />
-      <PromptSubmission participantData={userData} />
+    <div className="min-h-screen bg-background bg-mesh-gradient">
+      <Navigation currentView={currentView} onViewChange={setCurrentView} />
+      
+      <main className="pt-20">
+        {currentView === 'home' ? (
+          <div className="space-y-12 pb-20">
+            <ContestHeader />
+            <PromptSubmission />
+          </div>
+        ) : (
+          <div className="py-20">
+            <AdminPanel />
+          </div>
+        )}
+      </main>
     </div>
   );
 };

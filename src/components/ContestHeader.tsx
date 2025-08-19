@@ -1,15 +1,33 @@
 
-import { Trophy, Users, LogOut, Brain, Zap, Sparkles, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { Trophy, Target, Sparkles, Users, Crown, Zap } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
-interface ContestHeaderProps {
-  onLogout?: () => void;
-  participantName?: string;
-}
+const ContestHeader = () => {
+  // Get current target from localStorage
+  const getCurrentTarget = () => {
+    const stored = localStorage.getItem('contest-target');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        image: parsed.image || "https://picsum.photos/512/512?random=42",
+        prompt: parsed.prompt || "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+      };
+    }
+    return {
+      image: "https://picsum.photos/512/512?random=42",
+      prompt: "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales"
+    };
+  };
 
-const ContestHeader = ({ onLogout, participantName }: ContestHeaderProps) => {
+  const [currentTarget, setCurrentTarget] = useState(getCurrentTarget());
+
+  useEffect(() => {
+    setCurrentTarget(getCurrentTarget());
+  }, []);
+
   // Get current participant count
-  const getCurrentParticipantCount = () => {
+  const getParticipantCount = () => {
     const submissions = localStorage.getItem('contest-submissions');
     if (submissions) {
       const parsed = JSON.parse(submissions);
@@ -19,110 +37,188 @@ const ContestHeader = ({ onLogout, participantName }: ContestHeaderProps) => {
     return 0;
   };
 
-  const currentCount = getCurrentParticipantCount();
+  const [participantCount, setParticipantCount] = useState(getParticipantCount());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setParticipantCount(getParticipantCount());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="bg-gradient-to-r from-contest-primary via-contest-accent to-contest-secondary p-8 shadow-4xl border-b-4 border-contest-gold/40 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-contest-primary/30 via-transparent to-contest-accent/30 animate-pulse"></div>
+    <div className="relative overflow-hidden min-h-screen flex items-center">
+      {/* Enhanced background with multiple gradients */}
+      <div className="absolute inset-0 bg-mesh-gradient opacity-40"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-contest-primary/20 via-transparent to-contest-secondary/20"></div>
       
-      {/* Enhanced floating elements */}
-      <div className="absolute top-4 left-20 w-3 h-3 bg-contest-gold rounded-full animate-ping"></div>
-      <div className="absolute bottom-6 right-32 w-2 h-2 bg-white rounded-full animate-pulse delay-700"></div>
-      <div className="absolute top-8 right-20 w-1.5 h-1.5 bg-contest-accent rounded-full animate-ping delay-500"></div>
-      <Star className="absolute top-6 left-40 w-4 h-4 text-contest-gold/60 animate-pulse" />
-      <Sparkles className="absolute bottom-4 left-60 w-5 h-5 text-white/40 animate-spin-slow" />
+      {/* Floating decoration elements */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-contest-accent/10 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-48 h-48 bg-contest-primary/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
       
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-8 relative z-10">
-        <div className="flex items-center gap-8">
-          {/* Enhanced Neuronex Club Branding */}
-          <div className="flex items-center gap-4">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-contest-gold/30 rounded-full blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-              <Brain className="w-16 h-16 text-contest-gold animate-pulse relative z-10 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300" />
-              <div className="absolute -top-2 -right-2 w-5 h-5 bg-white rounded-full animate-ping"></div>
-              <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-contest-accent rounded-full animate-pulse delay-300"></div>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-black text-white tracking-wider mb-1">NEURONEX CLUB</span>
-              <div className="flex items-center gap-2">
-                <Star className="w-3 h-3 text-contest-gold animate-pulse" />
-                <span className="text-sm text-white/90 font-bold">Neural Excellence Network</span>
-                <Sparkles className="w-3 h-3 text-contest-accent animate-pulse delay-500" />
+      <div className="relative max-w-6xl mx-auto px-4 py-20 text-center">
+        <div className="animate-slide-in">
+          {/* Enhanced Main Trophy Section */}
+          <div className="flex justify-center mb-8">
+            <div className="relative">
+              <div className="absolute inset-0 bg-contest-gold/20 rounded-full blur-2xl animate-pulse"></div>
+              <Trophy className="w-28 h-28 text-contest-gold animate-float relative z-10" />
+              <div className="absolute -top-4 -right-4 animate-spin-slow">
+                <Crown className="w-12 h-12 text-contest-accent" />
+              </div>
+              <div className="absolute -bottom-2 -left-4">
+                <Sparkles className="w-8 h-8 text-contest-secondary animate-pulse" />
               </div>
             </div>
           </div>
           
-          <div className="h-16 w-px bg-white/40"></div>
-          
-          <div className="flex items-center gap-6">
-            <div className="relative group">
-              <Trophy className="w-14 h-14 text-contest-gold animate-float group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-contest-accent rounded-full animate-ping"></div>
-            </div>
-            <div>
-              <h1 className="text-4xl font-black text-white tracking-tight mb-1">Vision Prompt</h1>
-              <p className="text-white/90 text-base font-bold">Smart prompting that bridges vision and intelligence</p>
+          {/* Enhanced Title */}
+          <div className="mb-6">
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-contest-gradient bg-clip-text text-transparent relative">
+              Vision Prompt
+              <div className="absolute -inset-4 bg-gradient-to-r from-contest-primary/20 via-contest-accent/20 to-contest-secondary/20 rounded-2xl blur-xl -z-10"></div>
+            </h1>
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="h-1 w-20 bg-contest-gradient rounded-full"></div>
+              <h2 className="text-2xl md:text-3xl font-bold text-contest-accent">Smart prompting that bridges vision and intelligence</h2>
+              <div className="h-1 w-20 bg-contest-gradient rounded-full"></div>
             </div>
           </div>
-        </div>
+          
+          {/* Enhanced Subtitle */}
+          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+            🎯 Can you recreate the reference image with just words? 
+            <br />
+            <span className="text-contest-accent font-semibold">Write the perfect prompt and climb to victory!</span>
+          </p>
+          
+          {/* Participant Counter */}
+          <Card className="contest-card max-w-md mx-auto mb-12">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Users className="w-6 h-6 text-contest-accent" />
+                <h3 className="text-lg font-bold text-contest-accent">Live Participation</h3>
+              </div>
+              <div className="text-4xl font-black text-contest-primary mb-2">
+                {participantCount} / 80
+              </div>
+              <div className="w-full bg-muted rounded-full h-3 mb-2">
+                <div 
+                  className="bg-contest-gradient h-3 rounded-full transition-all duration-500" 
+                  style={{ width: `${Math.min((participantCount / 80) * 100, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {80 - participantCount > 0 ? `${80 - participantCount} spots remaining` : 'Contest is full!'}
+              </p>
+            </div>
+          </Card>
 
-        <div className="flex items-center gap-8">
-          {/* Enhanced Live Count Display */}
-          <div className="bg-white/15 backdrop-blur-lg rounded-3xl px-8 py-4 border-2 border-white/30 relative overflow-hidden group hover:scale-105 transition-all duration-300">
-            <div className="absolute inset-0 bg-gradient-to-r from-contest-gold/20 via-transparent to-contest-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            
-            <div className="flex items-center gap-4 relative z-10">
+          {/* Enhanced Feature Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 mb-16">
+            <Card className="contest-card hover-lift group">
               <div className="relative">
-                <Users className="w-8 h-8 text-contest-gold animate-pulse" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-contest-accent rounded-full animate-ping"></div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-black text-white mb-1">
-                  <span className="bg-gradient-to-r from-contest-gold via-white to-contest-gold bg-clip-text text-transparent animate-pulse">
-                    {currentCount}
-                  </span>
-                  <span className="text-white/60 mx-2 text-xl">/</span>
-                  <span className="text-contest-gold text-2xl">200</span>
+                <div className="w-16 h-16 rounded-full bg-contest-primary/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-contest-primary/30 transition-all duration-300">
+                  <Target className="w-8 h-8 text-contest-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
-                <div className="text-xs text-white/80 font-bold tracking-wide">Live Participants</div>
-                <div className="w-full bg-white/20 rounded-full h-2 mt-2 overflow-hidden">
-                  <div 
-                    className="bg-gradient-to-r from-contest-gold to-contest-accent h-2 rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
-                    style={{ width: `${Math.min((currentCount / 200) * 100, 100)}%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
-                  </div>
-                </div>
+                <h3 className="text-xl font-bold mb-4 text-contest-primary">🔍 Analyze & Study</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Carefully examine the reference image to understand every detail, color, and composition that needs to be recreated
+                </p>
               </div>
-            </div>
+            </Card>
+            
+            <Card className="contest-card hover-lift group">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-contest-accent/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-contest-accent/30 transition-all duration-300">
+                  <Sparkles className="w-8 h-8 text-contest-accent group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-contest-accent">✨ Craft Your Prompt</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Write a detailed, creative prompt that captures the essence and details of the reference image perfectly
+                </p>
+              </div>
+            </Card>
+            
+            <Card className="contest-card hover-lift group">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-full bg-contest-gold/20 flex items-center justify-center mx-auto mb-6 group-hover:bg-contest-gold/30 transition-all duration-300">
+                  <Trophy className="w-8 h-8 text-contest-gold group-hover:scale-110 transition-transform duration-300" />
+                </div>
+                <h3 className="text-xl font-bold mb-4 text-contest-gold">👑 Compete & Win</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Get scored on similarity and creativity. Rise through the ranks to become the ultimate prompt champion!
+                </p>
+              </div>
+            </Card>
           </div>
 
-          {/* Enhanced User Info & Logout */}
-          {participantName && onLogout && (
-            <div className="flex items-center gap-6">
-              <div className="text-right">
-                <div className="text-white font-black flex items-center gap-3 text-lg">
-                  <div className="relative">
-                    <Zap className="w-5 h-5 text-contest-accent animate-pulse" />
-                    <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-contest-gold rounded-full animate-ping"></div>
-                  </div>
-                  {participantName}
-                  <Star className="w-4 h-4 text-contest-gold animate-pulse" />
-                </div>
-                <div className="text-white/80 text-sm font-bold tracking-wide">Neuronex Elite Member</div>
+          {/* Preview of Current Challenge */}
+          <Card className="contest-card max-w-2xl mx-auto mb-16">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Target className="w-6 h-6 text-contest-accent" />
+                <h3 className="text-xl font-bold text-contest-accent">Current Challenge Preview</h3>
               </div>
-              <Button
-                onClick={onLogout}
-                variant="outline"
-                size="sm"
-                className="bg-white/15 border-2 border-white/40 text-white hover:bg-white/25 backdrop-blur-lg py-3 px-6 rounded-2xl font-bold hover:scale-105 transition-all duration-300 relative overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-contest-gold/20 via-transparent to-contest-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <LogOut className="w-5 h-5 mr-3 relative z-10" />
-                <span className="relative z-10">Logout</span>
-              </Button>
+              <div className="relative inline-block mb-4">
+                <img 
+                  src={currentTarget.image} 
+                  alt="Current contest challenge" 
+                  className="w-48 h-48 object-cover rounded-xl border-2 border-contest-accent/30 shadow-lg"
+                />
+                <div className="absolute -top-2 -right-2 bg-contest-accent text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse">
+                  LIVE
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Can you recreate this with the perfect prompt?
+              </p>
             </div>
-          )}
+          </Card>
+
+          {/* Enhanced Contest Stats */}
+          <Card className="contest-card max-w-4xl mx-auto shimmer">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-contest-primary/5 via-contest-accent/5 to-contest-secondary/5 rounded-xl"></div>
+              <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div className="group hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <Zap className="w-8 h-8 text-contest-primary animate-pulse" />
+                    <div className="text-3xl font-bold text-contest-primary">AI Powered</div>
+                  </div>
+                  <div className="text-muted-foreground font-medium">Advanced Image Generation</div>
+                </div>
+                
+                <div className="md:border-x border-border/50 group hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <Target className="w-8 h-8 text-contest-accent animate-pulse delay-300" />
+                    <div className="text-3xl font-bold text-contest-accent">Real-time</div>
+                  </div>
+                  <div className="text-muted-foreground font-medium">Instant Similarity Scoring</div>
+                </div>
+                
+                <div className="group hover:scale-105 transition-transform duration-300">
+                  <div className="flex items-center justify-center gap-3 mb-3">
+                    <Crown className="w-8 h-8 text-contest-gold animate-pulse delay-500" />
+                    <div className="text-3xl font-bold text-contest-gold">Live</div>
+                  </div>
+                  <div className="text-muted-foreground font-medium">Dynamic Leaderboard</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Call to Action */}
+          <div className="mt-16">
+            <div className="inline-flex items-center gap-3 px-8 py-4 bg-contest-gradient rounded-full text-white font-bold text-lg shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer">
+              <Trophy className="w-6 h-6" />
+              <span>Ready to Compete?</span>
+              <Sparkles className="w-6 h-6 animate-pulse" />
+            </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              Scroll down to see the challenge and submit your best prompt!
+            </p>
+          </div>
         </div>
       </div>
     </div>
