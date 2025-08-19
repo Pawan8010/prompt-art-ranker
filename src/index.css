@@ -31,7 +31,7 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     
-    /* Contest theme colors */
+    /* Enhanced Contest theme colors */
     --contest-primary: 260 100% 65%;
     --contest-secondary: 300 100% 70%;
     --contest-accent: 200 100% 60%;
@@ -48,77 +48,103 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Inter', system-ui, sans-serif;
+    background-attachment: fixed;
   }
 }
 
 @layer components {
   /* Enhanced Contest Theme Styles */
   .contest-card {
-    @apply bg-card/80 backdrop-blur-sm border-2 border-primary/20 rounded-2xl p-8 shadow-2xl transition-all duration-500 hover:shadow-3xl hover:border-primary/40;
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--card))/80% 100%);
+    @apply bg-card/90 backdrop-blur-xl border-2 border-primary/30 rounded-3xl p-8 shadow-3xl transition-all duration-500 hover:shadow-4xl hover:border-primary/50 hover:scale-[1.02];
+    background: linear-gradient(135deg, hsl(var(--card))/90% 0%, hsl(var(--card))/70% 100%);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   .admin-header {
-    @apply bg-gradient-to-r from-primary via-accent to-secondary text-white p-10 rounded-3xl shadow-3xl border-4 border-primary/30;
-    background: linear-gradient(135deg, hsl(var(--contest-primary)) 0%, hsl(var(--contest-accent)) 50%, hsl(var(--contest-secondary)) 100%);
+    @apply bg-gradient-to-r from-primary via-accent to-secondary text-white p-12 rounded-3xl shadow-4xl border-4 border-primary/40;
+    background: linear-gradient(135deg, hsl(var(--contest-primary)) 0%, hsl(var(--contest-accent)) 30%, hsl(var(--contest-secondary)) 70%, hsl(var(--contest-primary)) 100%);
+    box-shadow: 0 35px 70px -15px rgba(0, 0, 0, 0.8);
   }
 
   .leaderboard-card {
-    @apply bg-card/90 backdrop-blur-md border-2 border-primary/30 rounded-2xl p-8 shadow-xl;
-    background: linear-gradient(135deg, hsl(var(--card))/90% 0%, hsl(var(--card))/70% 100%);
+    @apply bg-card/95 backdrop-blur-2xl border-2 border-primary/40 rounded-3xl p-8 shadow-3xl hover:shadow-4xl transition-all duration-500;
+    background: linear-gradient(135deg, hsl(var(--card))/95% 0%, hsl(var(--card))/80% 100%);
   }
 
   .prompt-input {
-    @apply bg-input/80 backdrop-blur-sm border-2 border-primary/30 rounded-xl px-6 py-4 text-lg focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-300;
+    @apply bg-input/90 backdrop-blur-md border-2 border-primary/40 rounded-2xl px-6 py-4 text-lg focus:border-primary focus:ring-4 focus:ring-primary/30 transition-all duration-500 hover:border-primary/60;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .btn-contest {
-    @apply bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-8 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 text-lg;
+    @apply bg-gradient-to-r from-primary via-accent to-primary text-white font-bold py-4 px-8 rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 text-lg relative overflow-hidden;
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
   }
 
   .btn-admin {
-    @apply bg-gradient-to-r from-contest-primary to-contest-accent text-white font-bold py-3 px-6 rounded-xl shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300;
+    @apply bg-gradient-to-r from-contest-primary via-contest-accent to-contest-secondary text-white font-bold py-3 px-6 rounded-2xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500;
   }
 
   .score-display {
-    @apply font-black bg-gradient-to-r from-contest-gold to-contest-secondary bg-clip-text text-transparent;
-    text-shadow: 0 0 30px hsl(var(--contest-gold))/30%;
+    @apply font-black bg-gradient-to-r from-contest-gold via-yellow-400 to-contest-gold bg-clip-text text-transparent;
+    text-shadow: 0 0 40px hsl(var(--contest-gold))/40%;
+    background-size: 200% 200%;
+    animation: gradient-shift 2s ease infinite;
   }
 
   .bg-contest-gradient {
-    background: linear-gradient(135deg, hsl(var(--contest-primary)) 0%, hsl(var(--contest-accent)) 50%, hsl(var(--contest-secondary)) 100%);
+    background: linear-gradient(135deg, 
+      hsl(var(--contest-primary)) 0%, 
+      hsl(var(--contest-accent)) 25%, 
+      hsl(var(--contest-secondary)) 50%, 
+      hsl(var(--contest-accent)) 75%, 
+      hsl(var(--contest-primary)) 100%);
+    background-size: 400% 400%;
+    animation: gradient-shift 8s ease infinite;
   }
 
   .bg-mesh-gradient {
-    background-image: radial-gradient(circle at 25% 25%, hsl(var(--contest-primary))/20% 0%, transparent 50%), 
-                      radial-gradient(circle at 75% 75%, hsl(var(--contest-accent))/20% 0%, transparent 50%),
-                      radial-gradient(circle at 50% 50%, hsl(var(--contest-secondary))/10% 0%, transparent 50%);
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(var(--contest-primary))/15% 0%, transparent 50%), 
+      radial-gradient(circle at 75% 75%, hsl(var(--contest-accent))/15% 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, hsl(var(--contest-secondary))/10% 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, hsl(var(--contest-gold))/8% 0%, transparent 40%),
+      radial-gradient(circle at 20% 80%, hsl(var(--contest-accent))/8% 0%, transparent 40%);
   }
 
   /* Enhanced Badge Styles */
   .rank-gold {
-    @apply bg-gradient-to-r from-contest-gold to-yellow-400 text-black font-black px-6 py-2 rounded-full shadow-2xl border-2 border-contest-gold/50;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    box-shadow: 0 0 30px hsl(var(--contest-gold))/50%, inset 0 1px 0 rgba(255,255,255,0.3);
+    @apply bg-gradient-to-r from-contest-gold via-yellow-400 to-contest-gold text-black font-black px-8 py-3 rounded-full shadow-3xl border-2 border-contest-gold/60 relative overflow-hidden;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 0 40px hsl(var(--contest-gold))/60%, 
+                inset 0 2px 0 rgba(255,255,255,0.4),
+                0 10px 20px rgba(0,0,0,0.2);
   }
 
   .rank-silver {
-    @apply bg-gradient-to-r from-contest-silver to-gray-300 text-gray-800 font-black px-6 py-2 rounded-full shadow-xl border-2 border-contest-silver/50;
-    box-shadow: 0 0 20px hsl(var(--contest-silver))/40%, inset 0 1px 0 rgba(255,255,255,0.3);
+    @apply bg-gradient-to-r from-contest-silver via-gray-200 to-contest-silver text-gray-800 font-black px-8 py-3 rounded-full shadow-2xl border-2 border-contest-silver/60;
+    box-shadow: 0 0 30px hsl(var(--contest-silver))/50%, 
+                inset 0 2px 0 rgba(255,255,255,0.4),
+                0 8px 16px rgba(0,0,0,0.2);
   }
 
   .rank-bronze {
-    @apply bg-gradient-to-r from-contest-bronze to-orange-400 text-white font-black px-6 py-2 rounded-full shadow-xl border-2 border-contest-bronze/50;
-    box-shadow: 0 0 20px hsl(var(--contest-bronze))/40%, inset 0 1px 0 rgba(255,255,255,0.2);
+    @apply bg-gradient-to-r from-contest-bronze via-orange-400 to-contest-bronze text-white font-black px-8 py-3 rounded-full shadow-2xl border-2 border-contest-bronze/60;
+    box-shadow: 0 0 30px hsl(var(--contest-bronze))/50%, 
+                inset 0 2px 0 rgba(255,255,255,0.3),
+                0 8px 16px rgba(0,0,0,0.2);
   }
 
   .rank-default {
-    @apply bg-gradient-to-r from-muted to-muted-foreground/20 text-foreground font-bold px-4 py-2 rounded-full shadow-lg border border-muted-foreground/30;
+    @apply bg-gradient-to-r from-muted to-muted-foreground/30 text-foreground font-bold px-6 py-2 rounded-full shadow-xl border border-muted-foreground/40;
   }
 
   /* Enhanced Hover Effects */
   .hover-lift {
-    @apply transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+    @apply transition-all duration-500 hover:scale-105 hover:shadow-3xl hover:rotate-1;
   }
 
   .shimmer {
@@ -133,66 +159,88 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    animation: shimmer 3s infinite;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 4s infinite;
   }
 
   @keyframes shimmer {
     0% { left: -100%; }
     100% { left: 100%; }
   }
+
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
 }
 
 @layer utilities {
   /* Enhanced Animations */
   .animate-float {
-    animation: float 3s ease-in-out infinite;
+    animation: float 4s ease-in-out infinite;
   }
 
   .animate-spin-slow {
-    animation: spin 8s linear infinite;
+    animation: spin 10s linear infinite;
   }
 
   .animate-slide-in {
-    animation: slideIn 0.6s ease-out;
+    animation: slideIn 0.8s ease-out;
   }
 
   .animate-fade-in {
-    animation: fadeIn 0.8s ease-out;
+    animation: fadeIn 1s ease-out;
   }
 
   .shadow-3xl {
-    box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .shadow-4xl {
+    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.8), 
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
+    0%, 100% { 
+      transform: translateY(0px) rotate(0deg); 
+    }
+    25% { 
+      transform: translateY(-8px) rotate(1deg); 
+    }
+    50% { 
+      transform: translateY(-15px) rotate(0deg); 
+    }
+    75% { 
+      transform: translateY(-8px) rotate(-1deg); 
+    }
   }
 
   @keyframes slideIn {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(40px) scale(0.95);
     }
     to {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
   }
 
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: scale(0.95);
+      transform: scale(0.9) rotate(-2deg);
     }
     to {
       opacity: 1;
-      transform: scale(1);
+      transform: scale(1) rotate(0deg);
     }
   }
 
-  /* Text Effects */
+  /* Enhanced Text Effects */
   .text-contest-gold {
     color: hsl(var(--contest-gold));
   }
@@ -217,7 +265,7 @@
     color: hsl(var(--contest-accent));
   }
 
-  /* Background Effects */
+  /* Enhanced Background Effects */
   .bg-contest-gold {
     background-color: hsl(var(--contest-gold));
   }
