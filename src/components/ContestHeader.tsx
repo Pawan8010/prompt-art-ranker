@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Trophy, Target, Sparkles, Users, Crown, Zap } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -23,6 +24,26 @@ const ContestHeader = () => {
 
   useEffect(() => {
     setCurrentTarget(getCurrentTarget());
+  }, []);
+
+  // Get current participant count
+  const getParticipantCount = () => {
+    const submissions = localStorage.getItem('contest-submissions');
+    if (submissions) {
+      const parsed = JSON.parse(submissions);
+      const uniqueParticipants = new Set(parsed.map((sub: any) => sub.participantEmail));
+      return uniqueParticipants.size;
+    }
+    return 0;
+  };
+
+  const [participantCount, setParticipantCount] = useState(getParticipantCount());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setParticipantCount(getParticipantCount());
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -53,13 +74,13 @@ const ContestHeader = () => {
           
           {/* Enhanced Title */}
           <div className="mb-6">
-            <h1 className="text-6xl md:text-8xl font-bold mb-4 bg-contest-gradient bg-clip-text text-transparent relative">
-              Image Recreation
+            <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-contest-gradient bg-clip-text text-transparent relative">
+              Vision Prompt
               <div className="absolute -inset-4 bg-gradient-to-r from-contest-primary/20 via-contest-accent/20 to-contest-secondary/20 rounded-2xl blur-xl -z-10"></div>
             </h1>
             <div className="flex items-center justify-center gap-4 mb-4">
               <div className="h-1 w-20 bg-contest-gradient rounded-full"></div>
-              <h2 className="text-3xl md:text-4xl font-bold text-contest-accent">CONTEST</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-contest-accent">Smart prompting that bridges vision and intelligence</h2>
               <div className="h-1 w-20 bg-contest-gradient rounded-full"></div>
             </div>
           </div>
@@ -71,6 +92,28 @@ const ContestHeader = () => {
             <span className="text-contest-accent font-semibold">Write the perfect prompt and climb to victory!</span>
           </p>
           
+          {/* Participant Counter */}
+          <Card className="contest-card max-w-md mx-auto mb-12">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Users className="w-6 h-6 text-contest-accent" />
+                <h3 className="text-lg font-bold text-contest-accent">Live Participation</h3>
+              </div>
+              <div className="text-4xl font-black text-contest-primary mb-2">
+                {participantCount} / 80
+              </div>
+              <div className="w-full bg-muted rounded-full h-3 mb-2">
+                <div 
+                  className="bg-contest-gradient h-3 rounded-full transition-all duration-500" 
+                  style={{ width: `${Math.min((participantCount / 80) * 100, 100)}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {80 - participantCount > 0 ? `${80 - participantCount} spots remaining` : 'Contest is full!'}
+              </p>
+            </div>
+          </Card>
+
           {/* Enhanced Feature Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16 mb-16">
             <Card className="contest-card hover-lift group">
