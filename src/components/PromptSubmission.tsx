@@ -12,7 +12,14 @@ interface SubmissionResult {
   similarity: number;
 }
 
-const PromptSubmission = () => {
+interface PromptSubmissionProps {
+  participantData: {
+    name: string;
+    email: string;
+  };
+}
+
+const PromptSubmission = ({ participantData }: PromptSubmissionProps) => {
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -81,15 +88,14 @@ const PromptSubmission = () => {
       toast.success("Your submission has been recorded successfully!");
       
       // Save to localStorage with participant info
-      const participantData = JSON.parse(localStorage.getItem('participant-data') || '{}');
       const submissions = JSON.parse(localStorage.getItem('contest-submissions') || '[]');
       submissions.push({
         id: Date.now(),
         prompt,
         wordCount,
         charCount,
-        participantName: participantData.name || 'Anonymous',
-        participantEmail: participantData.email || '',
+        participantName: participantData.name,
+        participantEmail: participantData.email,
         referenceImage: currentTarget.image,
         ...mockResult,
         timestamp: new Date().toISOString()
@@ -132,8 +138,6 @@ const PromptSubmission = () => {
   };
 
   if (isSubmitted) {
-    const participantData = JSON.parse(localStorage.getItem('participant-data') || '{}');
-    
     return (
       <div className="max-w-4xl mx-auto px-4">
         <Card className="contest-card animate-fade-in">
@@ -141,7 +145,7 @@ const PromptSubmission = () => {
             <CheckCircle className="w-24 h-24 mx-auto mb-8 text-green-500 animate-pulse" />
             <h2 className="text-3xl font-bold mb-4 text-contest-primary">Submission Successful!</h2>
             <p className="text-lg text-muted-foreground mb-4">
-              Thank you {participantData.name || 'participant'} for participating!
+              Thank you {participantData.name} for participating!
             </p>
             <p className="text-muted-foreground mb-8">
               Your prompt has been submitted and is being evaluated.
