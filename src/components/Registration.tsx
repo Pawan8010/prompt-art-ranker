@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Trophy, Users, Sparkles, AlertCircle, Brain, Zap, Network } from "lucide-react";
+import { Trophy, Users, Sparkles, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface RegistrationProps {
@@ -99,8 +99,8 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
       localStorage.setItem('participant-data', JSON.stringify(formData));
 
       toast({
-        title: "Welcome to Neuronex!",
-        description: `Registration successful, ${formData.name}! You can now participate in Vision Prompt.`,
+        title: "Registration Successful!",
+        description: `Welcome to Vision Prompt, ${formData.name}! You can now participate in the contest.`,
       });
 
       onRegistrationComplete(formData);
@@ -119,93 +119,49 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
   const spotsRemaining = 80 - currentCount;
 
   return (
-    <div className="min-h-screen bg-mesh-gradient flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Enhanced floating animations */}
-      <div className="absolute top-10 left-10 w-32 h-32 bg-contest-primary/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute top-20 right-20 w-24 h-24 bg-contest-accent/15 rounded-full blur-2xl animate-float"></div>
-      <div className="absolute bottom-20 left-20 w-40 h-40 bg-contest-gold/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      <div className="absolute bottom-10 right-10 w-28 h-28 bg-contest-secondary/20 rounded-full blur-2xl animate-float delay-500"></div>
-      
-      {/* Animated particles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-contest-accent rounded-full animate-ping"></div>
-        <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-contest-gold rounded-full animate-pulse delay-700"></div>
-        <div className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-contest-primary rounded-full animate-ping delay-300"></div>
-      </div>
-
-      <div className="w-full max-w-md relative z-10">
-        <Card className="contest-card animate-slide-in backdrop-blur-xl bg-card/95 border-2 border-contest-primary/30 shadow-4xl">
+    <div className="min-h-screen bg-mesh-gradient flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <Card className="contest-card animate-slide-in">
           <div className="text-center mb-8">
-            {/* Neuronex Club Header */}
-            <div className="flex justify-center items-center gap-3 mb-6">
-              <div className="relative">
-                <Brain className="w-12 h-12 text-contest-primary animate-pulse" />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-contest-accent rounded-full animate-ping"></div>
-              </div>
-              <div className="flex flex-col items-center">
-                <h3 className="text-lg font-bold text-contest-primary mb-1">NEURONEX CLUB</h3>
-                <div className="flex items-center gap-2">
-                  <Network className="w-4 h-4 text-contest-accent" />
-                  <span className="text-xs text-contest-accent font-medium">Neural Excellence Network</span>
-                </div>
-              </div>
-              <div className="relative">
-                <Zap className="w-12 h-12 text-contest-accent animate-pulse" />
-                <div className="absolute -bottom-1 -left-1 w-3 h-3 bg-contest-gold rounded-full animate-ping delay-500"></div>
-              </div>
-            </div>
-
             <div className="flex justify-center mb-6">
               <div className="relative">
-                <div className="absolute inset-0 bg-contest-gold/20 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute inset-0 bg-contest-gold/20 rounded-full blur-2xl animate-pulse"></div>
                 <Trophy className="w-20 h-20 text-contest-gold animate-float relative z-10" />
                 <div className="absolute -top-2 -right-2">
-                  <Sparkles className="w-6 h-6 text-contest-accent animate-spin-slow" />
-                </div>
-                <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-contest-primary rounded-full flex items-center justify-center animate-pulse">
-                  <Brain className="w-4 h-4 text-white" />
+                  <Sparkles className="w-6 h-6 text-contest-accent animate-pulse" />
                 </div>
               </div>
             </div>
             
-            <h1 className="text-4xl font-bold mb-3 bg-contest-gradient bg-clip-text text-transparent animate-fade-in">
+            <h1 className="text-3xl font-bold mb-2 bg-contest-gradient bg-clip-text text-transparent">
               Vision Prompt
             </h1>
-            <p className="text-contest-accent font-semibold mb-2 text-lg">
+            <p className="text-contest-accent font-semibold mb-4">
               Smart prompting that bridges vision and intelligence
             </p>
-            <p className="text-sm text-muted-foreground mb-6 italic">
-              Conducted under Neuronex Club Excellence Program
-            </p>
             
-            <div className="bg-gradient-to-r from-muted/60 via-muted/40 to-muted/60 backdrop-blur-sm rounded-2xl p-4 mb-6 border border-contest-primary/20">
-              <div className="flex items-center justify-center gap-2 mb-3">
-                <Users className="w-5 h-5 text-contest-accent animate-pulse" />
-                <span className="text-sm font-bold text-contest-primary">Live Participation</span>
+            <div className="bg-muted/50 rounded-lg p-3 mb-6">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Users className="w-4 h-4 text-contest-accent" />
+                <span className="text-sm font-medium">Contest Capacity</span>
               </div>
-              <div className="text-3xl font-black mb-2">
-                <span className="bg-gradient-to-r from-contest-primary via-contest-accent to-contest-primary bg-clip-text text-transparent">
-                  {currentCount}
-                </span>
-                <span className="text-muted-foreground mx-2">/</span>
-                <span className="text-contest-gold">80</span>
+              <div className="text-2xl font-bold text-contest-primary mb-1">
+                {currentCount} / 80
               </div>
-              <div className="w-full bg-muted/60 rounded-full h-3 mb-3 overflow-hidden">
+              <div className="w-full bg-muted rounded-full h-2 mb-2">
                 <div 
-                  className="bg-gradient-to-r from-contest-primary via-contest-accent to-contest-gold h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden" 
+                  className="bg-contest-gradient h-2 rounded-full transition-all duration-500" 
                   style={{ width: `${Math.min((currentCount / 80) * 100, 100)}%` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-                </div>
+                ></div>
               </div>
               {spotsRemaining > 0 ? (
-                <p className="text-xs text-contest-accent font-medium animate-pulse">
-                  ⚡ {spotsRemaining} spots remaining
+                <p className="text-xs text-muted-foreground">
+                  {spotsRemaining} spots remaining
                 </p>
               ) : (
                 <div className="flex items-center justify-center gap-1 text-destructive">
-                  <AlertCircle className="w-4 h-4 animate-pulse" />
-                  <p className="text-xs font-bold">Contest Full</p>
+                  <AlertCircle className="w-3 h-3" />
+                  <p className="text-xs font-medium">Contest Full</p>
                 </div>
               )}
             </div>
@@ -213,9 +169,8 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
 
           {spotsRemaining > 0 ? (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-3">
-                <Label htmlFor="name" className="text-sm font-bold text-contest-primary flex items-center gap-2">
-                  <Brain className="w-4 h-4" />
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium text-foreground">
                   Full Name *
                 </Label>
                 <Input
@@ -225,14 +180,13 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
                   value={formData.name}
                   onChange={handleInputChange}
                   placeholder="Enter your full name"
-                  className="prompt-input border-2 border-contest-primary/30 focus:border-contest-primary focus:ring-4 focus:ring-contest-primary/20"
+                  className="prompt-input"
                   required
                 />
               </div>
 
-              <div className="space-y-3">
-                <Label htmlFor="email" className="text-sm font-bold text-contest-primary flex items-center gap-2">
-                  <Network className="w-4 h-4" />
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-foreground">
                   Email Address *
                 </Label>
                 <Input
@@ -242,7 +196,7 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Enter your email address"
-                  className="prompt-input border-2 border-contest-primary/30 focus:border-contest-primary focus:ring-4 focus:ring-contest-primary/20"
+                  className="prompt-input"
                   required
                 />
               </div>
@@ -250,41 +204,33 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
               <Button
                 type="submit"
                 disabled={isSubmitting || spotsRemaining <= 0}
-                className="btn-contest w-full text-lg py-4 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 relative overflow-hidden group"
+                className="btn-contest w-full"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-contest-gold/20 via-transparent to-contest-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 {isSubmitting ? (
-                  <div className="flex items-center gap-3 relative z-10">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Joining Neuronex...</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Registering...</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 relative z-10">
-                    <Brain className="w-5 h-5 animate-pulse" />
-                    <span>Join Vision Prompt</span>
-                    <Zap className="w-5 h-5" />
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-4 h-4" />
+                    <span>Join the Contest</span>
                   </div>
                 )}
               </Button>
 
-              <div className="bg-gradient-to-r from-contest-primary/5 via-contest-accent/5 to-contest-secondary/5 rounded-xl p-4 border border-contest-primary/20">
-                <p className="text-xs text-center text-muted-foreground leading-relaxed">
-                  By registering, you join the <span className="font-bold text-contest-primary">Neuronex Club</span> community and agree to participate in the Vision Prompt contest. Your submissions will be evaluated for creativity and technical excellence.
-                </p>
-              </div>
+              <p className="text-xs text-center text-muted-foreground">
+                By registering, you agree to participate in the Vision Prompt contest. 
+                Your submissions will be evaluated for similarity and creativity.
+              </p>
             </form>
           ) : (
             <div className="text-center py-8">
-              <div className="relative mb-6">
-                <AlertCircle className="w-16 h-16 text-destructive mx-auto animate-pulse" />
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-destructive rounded-full animate-ping"></div>
-              </div>
-              <h3 className="text-xl font-bold text-destructive mb-3">Contest Full</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                This Neuronex Club contest has reached its maximum capacity of 80 participants.
-              </p>
-              <p className="text-xs text-contest-accent font-medium">
-                Follow Neuronex Club for future contests and opportunities!
+              <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-destructive mb-2">Contest Full</h3>
+              <p className="text-sm text-muted-foreground">
+                This contest has reached its maximum capacity of 80 participants. 
+                Please check back for future contests.
               </p>
             </div>
           )}
