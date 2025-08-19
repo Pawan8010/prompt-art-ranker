@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Send, Sparkles, Target } from "lucide-react";
+import { Loader2, Send, Target, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface SubmissionResult {
@@ -15,7 +16,7 @@ interface SubmissionResult {
 const PromptSubmission = () => {
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<SubmissionResult | null>(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   // Get current target from localStorage
   const getCurrentTarget = () => {
@@ -65,8 +66,7 @@ const PromptSubmission = () => {
         feedback: generateFeedback(similarity, finalScore)
       };
       
-      setResult(mockResult);
-      toast.success("Your image has been generated and scored!");
+      toast.success("Your submission has been recorded successfully!");
       
       // Save to localStorage
       const submissions = JSON.parse(localStorage.getItem('contest-submissions') || '[]');
@@ -79,8 +79,10 @@ const PromptSubmission = () => {
       });
       localStorage.setItem('contest-submissions', JSON.stringify(submissions));
       
+      setIsSubmitted(true);
+      
     } catch (error) {
-      toast.error("Failed to generate image. Please try again.");
+      toast.error("Failed to process submission. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -101,55 +103,32 @@ const PromptSubmission = () => {
   };
 
   const handleNewSubmission = () => {
-    setResult(null);
+    setIsSubmitted(false);
     setPrompt("");
   };
 
-  if (result) {
+  if (isSubmitted) {
     return (
       <div className="max-w-4xl mx-auto px-4">
         <Card className="contest-card animate-fade-in">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">Your Result</h2>
-            <div className="score-display mb-4">{result.score}/100</div>
-            <div className="text-sm text-muted-foreground">
-              Similarity Bonus: +{result.similarity} points
+          <div className="text-center py-16">
+            <CheckCircle className="w-24 h-24 mx-auto mb-8 text-green-500 animate-pulse" />
+            <h2 className="text-3xl font-bold mb-4 text-contest-primary">Submission Successful!</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Thank you for participating! Your prompt has been submitted and is being evaluated.
+            </p>
+            <div className="bg-contest-primary/10 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+              <h3 className="font-semibold mb-3 text-contest-primary">Your Submitted Prompt:</h3>
+              <p className="text-muted-foreground italic text-lg">"{prompt}"</p>
             </div>
+            <p className="text-sm text-muted-foreground mb-8">
+              Results will be available in the admin panel. Check back later to see how you ranked!
+            </p>
+            <Button onClick={handleNewSubmission} className="btn-contest">
+              <Send className="w-4 h-4 mr-2" />
+              Submit Another Prompt
+            </Button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-              <h3 className="font-semibold mb-2 text-center">Reference Image</h3>
-              <img 
-                src={currentTarget.image} 
-                alt="Reference to recreate" 
-                className="w-full rounded-lg shadow-lg"
-              />
-            </div>
-            <div>
-              <h3 className="font-semibold mb-2 text-center">Your Generated Image</h3>
-              <img 
-                src={result.image} 
-                alt="Your generated result" 
-                className="w-full rounded-lg shadow-lg"
-              />
-            </div>
-          </div>
-          
-          <div className="bg-muted/50 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold mb-2">Your Prompt:</h3>
-            <p className="text-muted-foreground italic">"{prompt}"</p>
-          </div>
-          
-          <div className="bg-contest-primary/10 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold mb-2 text-contest-primary">AI Feedback:</h3>
-            <p className="text-sm">{result.feedback}</p>
-          </div>
-          
-          <Button onClick={handleNewSubmission} className="btn-contest w-full">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Try Another Prompt
-          </Button>
         </Card>
       </div>
     );
@@ -216,12 +195,12 @@ const PromptSubmission = () => {
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating & Scoring...
+                Processing Submission...
               </>
             ) : (
               <>
                 <Send className="w-4 h-4 mr-2" />
-                Generate & Compare
+                Submit Prompt
               </>
             )}
           </Button>
