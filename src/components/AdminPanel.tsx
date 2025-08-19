@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users, Upload, Save, RefreshCw, ImageIcon, Star } from "lucide-react";
+import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users, Upload, Save, RefreshCw, ImageIcon, Star, Brain, Shield, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 interface Submission {
@@ -29,6 +28,7 @@ const AdminPanel = () => {
   const [imagePreview, setImagePreview] = useState("");
 
   const ADMIN_PASSWORD = "Pawan@8010";
+  const ADMIN_EMAIL = "rajputpawan9765@gmail.com";
   
   // Get current target image and prompt from localStorage, with fallbacks
   const getCurrentTarget = () => {
@@ -65,9 +65,9 @@ const AdminPanel = () => {
     e.preventDefault();
     if (password === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
-      toast.success("Welcome to the admin panel!");
+      toast.success("🛡️ Welcome to Neuronex Admin Portal!");
     } else {
-      toast.error("Invalid password");
+      toast.error("❌ Unauthorized access attempt detected");
     }
   };
 
@@ -159,69 +159,94 @@ const AdminPanel = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `contest-results-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `neuronex-vision-prompt-results-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Results exported successfully!");
+    toast.success("📊 Results exported successfully!");
   };
 
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
-        {/* Enhanced background */}
-        <div className="absolute inset-0 bg-mesh-gradient opacity-30"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-contest-primary/10 via-transparent to-contest-secondary/10"></div>
+        {/* Enhanced secure background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 via-gray-900 to-blue-900/20"></div>
+        <div className="absolute inset-0 bg-mesh-gradient opacity-20"></div>
         
-        {/* Floating decorations */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-contest-gold/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-48 h-48 bg-contest-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-contest-primary/30 rounded-full blur-2xl animate-pulse delay-500"></div>
+        {/* Security-themed floating decorations */}
+        <div className="absolute top-20 left-10 w-32 h-32 bg-red-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-yellow-500/20 rounded-full blur-2xl animate-pulse delay-500"></div>
         
         <div className="w-full max-w-md relative z-10">
-          <Card className="contest-card animate-slide-in backdrop-blur-sm bg-card/90 border-2 border-contest-primary/20 shadow-2xl">
+          <Card className="contest-card animate-slide-in backdrop-blur-xl bg-gray-900/95 border-2 border-red-500/30 shadow-4xl">
             <div className="text-center mb-8">
-              <div className="relative mx-auto w-32 h-32 mb-6">
-                <div className="absolute inset-0 bg-contest-gold/20 rounded-full blur-xl animate-pulse"></div>
-                <Crown className="w-32 h-32 text-contest-gold animate-float relative z-10" />
-                <div className="absolute -top-4 -right-4 w-12 h-12 bg-contest-accent rounded-full flex items-center justify-center animate-spin-slow">
-                  <Sparkles className="w-8 h-8 text-white" />
+              {/* Neuronex Admin Header */}
+              <div className="flex justify-center items-center gap-3 mb-6">
+                <Brain className="w-8 h-8 text-contest-primary" />
+                <div className="text-center">
+                  <h3 className="text-lg font-bold text-contest-primary">NEURONEX CLUB</h3>
+                  <p className="text-xs text-contest-accent">Neural Excellence Network</p>
                 </div>
-                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-contest-secondary rounded-full flex items-center justify-center animate-pulse">
+                <Shield className="w-8 h-8 text-red-400" />
+              </div>
+
+              <div className="relative mx-auto w-32 h-32 mb-6">
+                <div className="absolute inset-0 bg-red-500/20 rounded-full blur-xl animate-pulse"></div>
+                <div className="absolute inset-4 bg-yellow-500/20 rounded-full blur-lg animate-pulse delay-300"></div>
+                <Lock className="w-32 h-32 text-red-400 animate-float relative z-10" />
+                <div className="absolute -top-4 -right-4 w-12 h-12 bg-red-500 rounded-full flex items-center justify-center animate-spin-slow border-4 border-red-400">
+                  <Shield className="w-5 h-5 text-white" />
+                </div>
+                <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center animate-pulse">
                   <Star className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <h2 className="text-4xl font-bold mb-4 bg-contest-gradient bg-clip-text text-transparent">
-                Admin Portal
+              
+              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-red-400 via-yellow-400 to-red-400 bg-clip-text text-transparent">
+                🛡️ ADMIN PORTAL 🛡️
               </h2>
+              
               <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="h-1 w-12 bg-contest-gradient rounded-full"></div>
-                <Crown className="w-5 h-5 text-contest-gold" />
-                <div className="h-1 w-12 bg-contest-gradient rounded-full"></div>
+                <div className="h-1 w-12 bg-gradient-to-r from-red-500 to-yellow-500 rounded-full"></div>
+                <Lock className="w-5 h-5 text-red-400 animate-pulse" />
+                <div className="h-1 w-12 bg-gradient-to-r from-yellow-500 to-red-500 rounded-full"></div>
               </div>
-              <p className="text-muted-foreground text-lg">Enter your credentials to access the contest dashboard</p>
+              
+              <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-4 mb-6">
+                <p className="text-red-200 text-sm font-medium mb-2">🔒 RESTRICTED ACCESS</p>
+                <p className="text-gray-300 text-xs">Authorized Personnel Only</p>
+                <p className="text-gray-400 text-xs mt-1">Contact: {ADMIN_EMAIL}</p>
+              </div>
             </div>
             
             <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Crown className="w-4 h-4 text-contest-accent" />
-                  Admin Password
+              <div className="space-y-3">
+                <label htmlFor="password" className="text-sm font-bold text-red-200 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-red-400" />
+                  Security Passphrase
                 </label>
                 <Input
                   id="password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter admin password"
-                  className="prompt-input text-center text-lg py-3 border-2 border-contest-primary/30 focus:border-contest-primary"
+                  placeholder="Enter admin passphrase"
+                  className="bg-gray-800/50 border-2 border-red-500/30 text-white placeholder-gray-400 text-center text-lg py-4 focus:border-red-400 focus:ring-4 focus:ring-red-500/20"
                 />
               </div>
-              <Button type="submit" className="btn-admin w-full text-lg py-4 shadow-xl hover:shadow-2xl transition-all duration-300">
-                <Crown className="w-6 h-6 mr-3" />
-                Access Dashboard
-                <Sparkles className="w-6 h-6 ml-3 animate-pulse" />
+              <Button type="submit" className="w-full text-lg py-4 bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 text-white font-bold shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 via-transparent to-red-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <Lock className="w-6 h-6 mr-3 relative z-10" />
+                <span className="relative z-10">AUTHENTICATE ACCESS</span>
+                <Shield className="w-6 h-6 ml-3 animate-pulse relative z-10" />
               </Button>
             </form>
+            
+            <div className="mt-6 text-center">
+              <p className="text-xs text-gray-500">
+                Neuronex Club Vision Prompt Administration
+              </p>
+            </div>
           </Card>
         </div>
       </div>
@@ -234,11 +259,25 @@ const AdminPanel = () => {
       <div className="absolute inset-0 bg-mesh-gradient opacity-20"></div>
       
       <div className="max-w-7xl mx-auto px-4 space-y-8 relative z-10">
-        {/* Enhanced Admin Header */}
-        <Card className="admin-header animate-slide-in relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-contest-primary/20 via-contest-accent/10 to-contest-secondary/20"></div>
+        {/* Enhanced Admin Header with Neuronex branding */}
+        <Card className="admin-header animate-slide-in relative overflow-hidden border-4 border-contest-primary/40">
+          <div className="absolute inset-0 bg-gradient-to-r from-contest-primary/30 via-contest-accent/20 to-contest-secondary/30"></div>
           <div className="relative flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex items-center gap-6">
+              {/* Neuronex Admin Branding */}
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <Brain className="w-12 h-12 text-contest-gold animate-pulse" />
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full animate-ping"></div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-white">NEURONEX CLUB</span>
+                  <span className="text-sm text-blue-200">Admin Dashboard</span>
+                </div>
+              </div>
+              
+              <div className="h-16 w-px bg-white/30"></div>
+              
               <div className="relative">
                 <div className="absolute inset-0 bg-contest-gold/30 rounded-full blur-xl animate-pulse"></div>
                 <Trophy className="w-16 h-16 text-contest-gold animate-float relative z-10" />
@@ -247,19 +286,19 @@ const AdminPanel = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-5xl font-bold mb-3 text-white">Contest Control Center</h1>
+                <h1 className="text-5xl font-bold mb-3 text-white">Vision Prompt Control</h1>
                 <div className="flex items-center gap-6 text-blue-100 text-lg">
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    <span>Total Participants: {submissions.length}</span>
+                    <span>Participants: {submissions.length}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <BarChart3 className="w-5 h-5" />
-                    <span>Active Competition</span>
+                    <span>Live Contest</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Target className="w-5 h-5 animate-pulse" />
-                    <span>Live Contest</span>
+                    <span>Neural Excellence</span>
                   </div>
                 </div>
               </div>
@@ -484,7 +523,7 @@ const AdminPanel = () => {
               <div className="flex items-center justify-center gap-4 mb-8">
                 <Crown className="w-12 h-12 text-contest-gold animate-pulse" />
                 <h2 className="text-5xl font-bold bg-gradient-to-r from-contest-gold via-contest-secondary to-contest-gold bg-clip-text text-transparent">
-                  🏆 CHAMPION 🏆
+                  🏆 NEURONEX CHAMPION 🏆
                 </h2>
                 <Crown className="w-12 h-12 text-contest-gold animate-pulse" />
               </div>
@@ -531,7 +570,7 @@ const AdminPanel = () => {
                     )}
                     
                     <div className="text-center">
-                      <p className="text-lg text-contest-gold mb-3 font-semibold">🎉 Congratulations to our champion! 🎉</p>
+                      <p className="text-lg text-contest-gold mb-3 font-semibold">🎉 Congratulations to our Neuronex Champion! 🎉</p>
                       <p className="text-sm text-muted-foreground">
                         Submitted: {new Date(submissions[0].timestamp).toLocaleString()}
                       </p>
@@ -550,7 +589,7 @@ const AdminPanel = () => {
             <div className="flex items-center gap-4 mb-10">
               <Trophy className="w-10 h-10 text-contest-gold animate-pulse" />
               <h2 className="text-4xl font-bold bg-contest-gradient bg-clip-text text-transparent">
-                Complete Leaderboard
+                Neuronex Leaderboard
               </h2>
               <div className="flex-1 h-1 bg-gradient-to-r from-contest-primary via-contest-accent to-transparent rounded-full"></div>
               <Medal className="w-8 h-8 text-contest-bronze" />
@@ -560,7 +599,7 @@ const AdminPanel = () => {
               <div className="text-center py-20">
                 <Trophy className="w-20 h-20 mx-auto mb-8 text-muted-foreground/50" />
                 <h3 className="text-2xl font-semibold mb-4">No Submissions Yet</h3>
-                <p className="text-muted-foreground text-lg">The competition is just getting started!</p>
+                <p className="text-muted-foreground text-lg">The Neuronex Vision Prompt challenge awaits!</p>
               </div>
             ) : (
               <div className="space-y-8">
@@ -633,7 +672,7 @@ const AdminPanel = () => {
                           <div>
                             <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
                               <BarChart3 className="w-5 h-5 text-contest-secondary" />
-                              AI Analysis:
+                              Neural Analysis:
                             </h4>
                             <p className="text-muted-foreground bg-muted/20 p-6 rounded-xl text-lg leading-relaxed">
                               {submission.feedback}
