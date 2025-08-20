@@ -1,8 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Send, Target, CheckCircle, FileText, ImageIcon } from "lucide-react";
+import { Loader2, Send, Target, CheckCircle, FileText, ImageIcon, User, Crown, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface SubmissionResult {
@@ -19,6 +20,7 @@ const PromptSubmission = () => {
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [generatedImage, setGeneratedImage] = useState("");
+  const [participantData, setParticipantData] = useState<any>(null);
 
   // Get current target from localStorage
   const getCurrentTarget = () => {
@@ -40,6 +42,9 @@ const PromptSubmission = () => {
 
   useEffect(() => {
     setCurrentTarget(getCurrentTarget());
+    // Get participant data
+    const userData = JSON.parse(localStorage.getItem('participant-data') || '{}');
+    setParticipantData(userData);
   }, []);
 
   // Update word and character count when prompt changes
@@ -48,6 +53,49 @@ const PromptSubmission = () => {
     setWordCount(words.length);
     setCharCount(prompt.length);
   }, [prompt]);
+
+  // Improved image generation based on prompt keywords
+  const generateImageFromPrompt = (userPrompt: string) => {
+    const keywords = userPrompt.toLowerCase().split(/\s+/);
+    
+    // Enhanced seed generation based on prompt content
+    let seed = 0;
+    for (let i = 0; i < userPrompt.length; i++) {
+      seed += userPrompt.charCodeAt(i) * (i + 1);
+    }
+    
+    // Different image categories based on keywords
+    const categories = {
+      nature: ['tree', 'forest', 'mountain', 'lake', 'flower', 'sunset', 'sky', 'cloud'],
+      fantasy: ['dragon', 'magic', 'wizard', 'castle', 'fairy', 'unicorn', 'mystical'],
+      urban: ['city', 'building', 'street', 'car', 'urban', 'modern', 'architecture'],
+      portrait: ['person', 'face', 'portrait', 'human', 'woman', 'man', 'child'],
+      abstract: ['abstract', 'colorful', 'pattern', 'geometric', 'artistic']
+    };
+    
+    let categoryMatch = 'random';
+    let maxMatches = 0;
+    
+    for (const [category, categoryKeywords] of Object.entries(categories)) {
+      const matches = keywords.filter(word => categoryKeywords.includes(word)).length;
+      if (matches > maxMatches) {
+        maxMatches = matches;
+        categoryMatch = category;
+      }
+    }
+    
+    // Generate more relevant image based on category and prompt
+    const baseUrls = {
+      nature: `https://picsum.photos/512/512?random=${seed % 1000}&nature`,
+      fantasy: `https://picsum.photos/512/512?random=${seed % 1000}&fantasy`,
+      urban: `https://picsum.photos/512/512?random=${seed % 1000}&urban`,
+      portrait: `https://picsum.photos/512/512?random=${seed % 1000}&portrait`,
+      abstract: `https://picsum.photos/512/512?random=${seed % 1000}&abstract`,
+      random: `https://picsum.photos/512/512?random=${seed % 1000}`
+    };
+    
+    return baseUrls[categoryMatch as keyof typeof baseUrls] || baseUrls.random;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,11 +112,15 @@ const PromptSubmission = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call for image generation
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Simulate AI image generation with progress updates
+      toast.info("🎨 Analyzing your prompt...");
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Generate image based on user's prompt (simulate AI generation)
-      const userGeneratedImage = `https://picsum.photos/512/512?random=${Date.now()}&seed=${encodeURIComponent(prompt.slice(0, 50))}`;
+      toast.info("🖼️ Generating your image...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Generate improved image based on user's prompt
+      const userGeneratedImage = generateImageFromPrompt(prompt);
       setGeneratedImage(userGeneratedImage);
       
       // Calculate similarity score based on prompt matching (for admin use only)
@@ -83,18 +135,18 @@ const PromptSubmission = () => {
         feedback: generateFeedback(similarity, finalScore)
       };
       
-      toast.success("Your image has been generated successfully!");
+      toast.success("🎉 Your masterpiece has been created!");
       
       // Save to localStorage with participant info
-      const participantData = JSON.parse(localStorage.getItem('participant-data') || '{}');
       const submissions = JSON.parse(localStorage.getItem('contest-submissions') || '[]');
       submissions.push({
         id: Date.now(),
         prompt,
         wordCount,
         charCount,
-        participantName: participantData.name || 'Anonymous',
-        participantEmail: participantData.email || '',
+        participantName: participantData?.name || 'Anonymous',
+        participantEmail: participantData?.email || '',
+        participantId: participantData?.participantId || Date.now(),
         referenceImage: currentTarget.image,
         ...mockResult,
         timestamp: new Date().toISOString()
@@ -138,39 +190,46 @@ const PromptSubmission = () => {
   };
 
   if (isSubmitted) {
-    const participantData = JSON.parse(localStorage.getItem('participant-data') || '{}');
-    
     return (
       <div className="max-w-4xl mx-auto px-4">
         <Card className="contest-card animate-fade-in">
           <div className="text-center py-16">
             <CheckCircle className="w-24 h-24 mx-auto mb-8 text-green-500 animate-pulse" />
-            <h2 className="text-3xl font-bold mb-4 text-contest-primary">Image Generated Successfully!</h2>
+            <h2 className="text-3xl font-bold mb-4 text-contest-primary">🎨 Masterpiece Created! 🎨</h2>
             <p className="text-lg text-muted-foreground mb-4">
-              Thank you {participantData.name || 'participant'} for participating!
+              Outstanding work, <span className="text-contest-primary font-semibold">{participantData?.name || 'Artist'}</span>! 
             </p>
             <p className="text-muted-foreground mb-8">
-              Here's the image generated from your prompt:
+              Your creative vision has been transformed into this beautiful image:
             </p>
             
-            {/* Show the generated image */}
+            {/* Show the generated image with better presentation */}
             <div className="max-w-2xl mx-auto mb-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="text-center">
-                  <h3 className="font-semibold mb-4 text-contest-accent">Reference Image</h3>
+                  <h3 className="font-semibold mb-4 text-contest-accent flex items-center justify-center gap-2">
+                    <Target className="w-5 h-5" />
+                    Reference Challenge
+                  </h3>
                   <img 
                     src={currentTarget.image} 
                     alt="Reference image" 
-                    className="w-full h-64 object-cover rounded-2xl border-4 border-contest-accent/30 shadow-xl"
+                    className="w-full h-64 object-cover rounded-2xl border-4 border-contest-accent/30 shadow-xl hover:scale-105 transition-transform duration-300"
                   />
                 </div>
                 <div className="text-center">
-                  <h3 className="font-semibold mb-4 text-contest-primary">Your Generated Image</h3>
+                  <h3 className="font-semibold mb-4 text-contest-primary flex items-center justify-center gap-2">
+                    <Sparkles className="w-5 h-5 animate-pulse" />
+                    Your Creation
+                  </h3>
                   <img 
                     src={generatedImage} 
-                    alt="Your generated image" 
-                    className="w-full h-64 object-cover rounded-2xl border-4 border-contest-primary/30 shadow-xl"
+                    alt="Your generated masterpiece" 
+                    className="w-full h-64 object-cover rounded-2xl border-4 border-contest-primary/30 shadow-xl hover:scale-105 transition-transform duration-300"
                   />
+                  <div className="absolute -top-2 -right-2 bg-contest-gold text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse shadow-xl">
+                    ✨ NEW
+                  </div>
                 </div>
               </div>
             </div>
@@ -178,9 +237,11 @@ const PromptSubmission = () => {
             <div className="bg-contest-primary/10 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
               <h3 className="font-semibold mb-3 text-contest-primary flex items-center justify-center gap-2">
                 <ImageIcon className="w-5 h-5" />
-                Your Submitted Prompt:
+                Your Artistic Prompt:
               </h3>
-              <p className="text-muted-foreground italic text-lg mb-4">"{prompt}"</p>
+              <p className="text-muted-foreground italic text-lg mb-4 bg-white/50 rounded-xl p-4 border-l-4 border-contest-primary">
+                "{prompt}"
+              </p>
               <div className="flex justify-center gap-6 text-sm">
                 <div className="flex items-center gap-2">
                   <FileText className="w-4 h-4 text-contest-accent" />
@@ -192,12 +253,19 @@ const PromptSubmission = () => {
               </div>
             </div>
             
-            <p className="text-sm text-muted-foreground mb-8">
-              Your submission has been recorded! Scoring and results will be available in the admin panel.
-            </p>
-            <Button onClick={handleNewSubmission} className="btn-contest">
-              <Send className="w-4 h-4 mr-2" />
-              Submit Another Prompt
+            <div className="bg-gradient-to-r from-contest-gold/20 to-contest-secondary/20 rounded-xl p-6 mb-8 max-w-2xl mx-auto">
+              <p className="text-sm text-muted-foreground mb-2">
+                🏆 Your submission has been recorded for the leaderboard!
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Scoring and final results will be available in the admin panel.
+              </p>
+            </div>
+            
+            <Button onClick={handleNewSubmission} className="btn-contest text-lg px-8 py-4">
+              <Send className="w-5 h-5 mr-2" />
+              Create Another Masterpiece
+              <Sparkles className="w-5 h-5 ml-2 animate-pulse" />
             </Button>
           </div>
         </Card>
@@ -207,14 +275,38 @@ const PromptSubmission = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4">
+      {/* User Welcome Section */}
+      {participantData && (
+        <Card className="contest-card mb-6 animate-slide-in">
+          <div className="flex items-center gap-4 p-4">
+            <div className="relative">
+              <User className="w-12 h-12 text-contest-primary" />
+              <Crown className="w-6 h-6 text-contest-gold absolute -top-2 -right-2 animate-pulse" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-contest-primary">
+                Welcome back, {participantData.name}! 🎨
+              </h3>
+              <p className="text-muted-foreground">
+                Ready to create your next masterpiece? Let your creativity flow!
+              </p>
+            </div>
+            <div className="text-right text-sm text-muted-foreground">
+              <p>Participant #{participantData.participantId || 'N/A'}</p>
+              <p>{participantData.email}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <Card className="contest-card shimmer">
         <div className="text-center mb-6">
           <Target className="w-12 h-12 mx-auto mb-4 text-contest-primary animate-float" />
           <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-contest-primary to-contest-accent bg-clip-text text-transparent">
-            Recreate This Image
+            🎯 Recreate This Masterpiece
           </h2>
           <p className="text-muted-foreground">
-            Write a detailed prompt that would generate an image similar to the reference below
+            Craft a detailed prompt that would generate an image similar to the reference below
           </p>
         </div>
 
@@ -227,16 +319,16 @@ const PromptSubmission = () => {
               className="w-full rounded-lg shadow-xl border-4 border-contest-primary/20 hover-lift"
             />
             <div className="absolute -top-2 -right-2 bg-gradient-to-r from-contest-primary to-contest-accent text-white px-3 py-1 rounded-full text-sm font-semibold shimmer">
-              Reference
+              🎯 TARGET
             </div>
           </div>
           <div className="text-center mt-4">
             <p className="text-sm text-muted-foreground mb-2">
-              Your goal: Write a detailed prompt that would generate something similar to this image
+              Your mission: Write a detailed prompt that would generate something similar to this image
             </p>
             {currentTarget.prompt !== "A majestic dragon soaring through a cloudy sunset sky, with golden light illuminating its scales" && (
               <p className="text-xs text-contest-accent italic">
-                Hint: {currentTarget.prompt}
+                💡 Hint: {currentTarget.prompt}
               </p>
             )}
           </div>
@@ -246,7 +338,7 @@ const PromptSubmission = () => {
           <div>
             <div className="flex justify-between items-center mb-2">
               <label htmlFor="prompt" className="block text-sm font-medium">
-                Your Creative Prompt
+                🎨 Your Creative Prompt
               </label>
               <div className="flex items-center gap-4 text-xs">
                 <div className={`flex items-center gap-1 ${getWordCountColor()}`}>
@@ -264,20 +356,20 @@ const PromptSubmission = () => {
               id="prompt"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe what you see in the reference image... Be specific and detailed! Include colors, objects, lighting, composition, style, and atmosphere."
+              placeholder="Describe what you see in the reference image... Be specific and detailed! Include colors, objects, lighting, composition, style, and atmosphere. The more accurate your description, the better your generated image will match!"
               className="prompt-input min-h-32 resize-none"
               disabled={isLoading}
             />
             <div className="flex justify-between items-center mt-2 text-xs">
               <div className="text-muted-foreground">
-                Tip: The more accurately you describe the reference image, the better your generated image will match!
+                💡 Pro tip: The more accurately you describe the reference image, the better your AI-generated result will be!
               </div>
               {wordCount > 0 && (
                 <div className={`font-medium ${wordCount < 5 ? 'text-red-500' : wordCount < 10 ? 'text-yellow-500' : 'text-green-500'}`}>
-                  {wordCount < 5 ? 'Need at least 5 words' : 
-                   wordCount < 10 ? 'Good, add more details' : 
-                   wordCount < 20 ? 'Great detail level!' : 
-                   'Excellent detail!'}
+                  {wordCount < 5 ? '❌ Need at least 5 words' : 
+                   wordCount < 10 ? '⚠️ Good, add more details' : 
+                   wordCount < 20 ? '✅ Great detail level!' : 
+                   '🎯 Excellent detail!'}
                 </div>
               )}
             </div>
@@ -285,18 +377,19 @@ const PromptSubmission = () => {
           
           <Button 
             type="submit" 
-            className="btn-contest w-full"
+            className="btn-contest w-full text-lg py-4"
             disabled={isLoading || !prompt.trim() || wordCount < 5}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Generating Image...
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                🎨 Creating Your Masterpiece...
               </>
             ) : (
               <>
-                <Send className="w-4 h-4 mr-2" />
-                Generate Image ({wordCount} words)
+                <Send className="w-5 h-5 mr-2" />
+                🚀 Generate My Image ({wordCount} words)
+                <Sparkles className="w-5 h-5 ml-2 animate-pulse" />
               </>
             )}
           </Button>

@@ -1,239 +1,189 @@
 
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Trophy, Users, Sparkles, AlertCircle } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Card } from "@/components/ui/card";
+import { Trophy, Sparkles, Users, Crown, Star } from "lucide-react";
+import { toast } from "sonner";
 
 interface RegistrationProps {
   onRegistrationComplete: (userData: { name: string; email: string }) => void;
 }
 
 const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-
-  // Check current participant count
-  const getCurrentParticipantCount = () => {
-    const submissions = localStorage.getItem('contest-submissions');
-    if (submissions) {
-      const parsed = JSON.parse(submissions);
-      const uniqueParticipants = new Set(parsed.map((sub: any) => sub.participantEmail));
-      return uniqueParticipants.size;
-    }
-    return 0;
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name.trim() || !formData.email.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in both name and email fields.",
-        variant: "destructive"
-      });
+    if (!name.trim() || !email.trim()) {
+      toast.error("Please fill in all fields");
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive"
-      });
+    if (!email.includes("@")) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
-    // Check if contest is full
-    const currentCount = getCurrentParticipantCount();
-    if (currentCount >= 80) {
-      toast({
-        title: "Contest Full",
-        description: "Sorry, this contest has reached its maximum capacity of 80 participants.",
-        variant: "destructive"
-      });
+    setIsLoading(true);
+
+    // Get current participant count
+    const existingParticipants = JSON.parse(localStorage.getItem('contest-participants') || '[]');
+    
+    // Check if already registered
+    const existingUser = existingParticipants.find((p: any) => p.email === email.trim());
+    if (existingUser) {
+      // Login existing user
+      const userData = { name: existingUser.name, email: existingUser.email };
+      localStorage.setItem('participant-data', JSON.stringify(userData));
+      toast.success(`Welcome back, ${existingUser.name}! 🎉`);
+      onRegistrationComplete(userData);
+      setIsLoading(false);
       return;
     }
 
-    // Check if user is already registered
-    const existingParticipants = localStorage.getItem('contest-participants');
-    if (existingParticipants) {
-      const participants = JSON.parse(existingParticipants);
-      const existingParticipant = participants.find((p: any) => p.email === formData.email);
-      if (existingParticipant) {
-        // Allow re-entry for existing participants
-        localStorage.setItem('participant-data', JSON.stringify(formData));
-        onRegistrationComplete(formData);
-        return;
-      }
+    // Check participant limit (increased to 200)
+    if (existingParticipants.length >= 200) {
+      toast.error("Contest is full! Maximum 200 participants allowed.");
+      setIsLoading(false);
+      return;
     }
-
-    setIsSubmitting(true);
 
     try {
-      // Store participant data
-      const participants = existingParticipants ? JSON.parse(existingParticipants) : [];
-      participants.push({
-        ...formData,
-        registeredAt: new Date().toISOString(),
-        id: Date.now().toString()
-      });
+      // Simulate registration delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      localStorage.setItem('contest-participants', JSON.stringify(participants));
-      localStorage.setItem('participant-data', JSON.stringify(formData));
-
-      toast({
-        title: "Registration Successful!",
-        description: `Welcome to Vision Prompt, ${formData.name}! You can now participate in the contest.`,
-      });
-
-      onRegistrationComplete(formData);
+      const userData = { 
+        name: name.trim(), 
+        email: email.trim(),
+        registrationTime: new Date().toISOString(),
+        participantId: Date.now()
+      };
+      
+      // Store participant data
+      localStorage.setItem('participant-data', JSON.stringify(userData));
+      
+      // Add to participants list
+      existingParticipants.push(userData);
+      localStorage.setItem('contest-participants', JSON.stringify(existingParticipants));
+      
+      toast.success(`Welcome to Prompt Craft Challenge, ${name}! 🎨✨`);
+      onRegistrationComplete(userData);
+      
     } catch (error) {
-      toast({
-        title: "Registration Failed",
-        description: "There was an error during registration. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Registration failed. Please try again.");
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
-  const currentCount = getCurrentParticipantCount();
-  const spotsRemaining = 80 - currentCount;
+  // Get current participant count for display
+  const currentParticipants = JSON.parse(localStorage.getItem('contest-participants') || '[]').length;
 
   return (
-    <div className="min-h-screen bg-mesh-gradient flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card className="contest-card animate-slide-in">
+    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-mesh-gradient">
+      {/* Enhanced background decorations */}
+      <div className="absolute inset-0 bg-gradient-to-br from-contest-primary/10 via-transparent to-contest-secondary/10"></div>
+      <div className="absolute top-20 left-10 w-32 h-32 bg-contest-gold/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-48 h-48 bg-contest-accent/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-1/4 w-20 h-20 bg-contest-primary/30 rounded-full blur-2xl animate-pulse delay-500"></div>
+      
+      <div className="w-full max-w-md relative z-10">
+        <Card className="contest-card animate-slide-in backdrop-blur-sm bg-card/95 border-2 border-contest-primary/20 shadow-2xl">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-contest-gold/20 rounded-full blur-2xl animate-pulse"></div>
-                <Trophy className="w-20 h-20 text-contest-gold animate-float relative z-10" />
-                <div className="absolute -top-2 -right-2">
-                  <Sparkles className="w-6 h-6 text-contest-accent animate-pulse" />
-                </div>
+            <div className="relative mx-auto w-32 h-32 mb-6">
+              <div className="absolute inset-0 bg-contest-primary/20 rounded-full blur-xl animate-pulse"></div>
+              <Trophy className="w-32 h-32 text-contest-primary animate-float relative z-10" />
+              <div className="absolute -top-4 -right-4 w-12 h-12 bg-contest-accent rounded-full flex items-center justify-center animate-spin-slow">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-contest-secondary rounded-full flex items-center justify-center animate-pulse">
+                <Star className="w-5 h-5 text-white" />
               </div>
             </div>
             
-            <h1 className="text-3xl font-bold mb-2 bg-contest-gradient bg-clip-text text-transparent">
-              Vision Prompt
+            <h1 className="text-4xl font-bold mb-4 bg-contest-gradient bg-clip-text text-transparent">
+              Prompt Craft Challenge
             </h1>
-            <p className="text-contest-accent font-semibold mb-4">
-              Smart prompting that bridges vision and intelligence
+            
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="h-1 w-12 bg-contest-gradient rounded-full"></div>
+              <Crown className="w-5 h-5 text-contest-gold" />
+              <div className="h-1 w-12 bg-contest-gradient rounded-full"></div>
+            </div>
+            
+            <p className="text-muted-foreground text-lg mb-6">
+              Join the ultimate AI prompt engineering contest!
             </p>
             
-            <div className="bg-muted/50 rounded-lg p-3 mb-6">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Users className="w-4 h-4 text-contest-accent" />
-                <span className="text-sm font-medium">Contest Capacity</span>
-              </div>
-              <div className="text-2xl font-bold text-contest-primary mb-1">
-                {currentCount} / 80
-              </div>
-              <div className="w-full bg-muted rounded-full h-2 mb-2">
-                <div 
-                  className="bg-contest-gradient h-2 rounded-full transition-all duration-500" 
-                  style={{ width: `${Math.min((currentCount / 80) * 100, 100)}%` }}
-                ></div>
-              </div>
-              {spotsRemaining > 0 ? (
-                <p className="text-xs text-muted-foreground">
-                  {spotsRemaining} spots remaining
-                </p>
-              ) : (
-                <div className="flex items-center justify-center gap-1 text-destructive">
-                  <AlertCircle className="w-3 h-3" />
-                  <p className="text-xs font-medium">Contest Full</p>
-                </div>
-              )}
+            {/* Participant counter */}
+            <div className="flex items-center justify-center gap-2 mb-6 bg-contest-primary/10 rounded-full px-4 py-2">
+              <Users className="w-5 h-5 text-contest-primary" />
+              <span className="text-contest-primary font-semibold">
+                {currentParticipants}/200 Participants
+              </span>
             </div>
           </div>
-
-          {spotsRemaining > 0 ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium text-foreground">
-                  Full Name *
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter your full name"
-                  className="prompt-input"
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  Email Address *
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email address"
-                  className="prompt-input"
-                  required
-                />
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isSubmitting || spotsRemaining <= 0}
-                className="btn-contest w-full"
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Registering...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Trophy className="w-4 h-4" />
-                    <span>Join the Contest</span>
-                  </div>
-                )}
-              </Button>
-
-              <p className="text-xs text-center text-muted-foreground">
-                By registering, you agree to participate in the Vision Prompt contest. 
-                Your submissions will be evaluated for similarity and creativity.
-              </p>
-            </form>
-          ) : (
-            <div className="text-center py-8">
-              <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-destructive mb-2">Contest Full</h3>
-              <p className="text-sm text-muted-foreground">
-                This contest has reached its maximum capacity of 80 participants. 
-                Please check back for future contests.
-              </p>
+          
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Crown className="w-4 h-4 text-contest-accent" />
+                Full Name
+              </label>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter your full name"
+                className="prompt-input text-lg py-3 border-2 border-contest-primary/30 focus:border-contest-primary"
+                disabled={isLoading}
+              />
             </div>
-          )}
+            
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-contest-secondary" />
+                Email Address
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                className="prompt-input text-lg py-3 border-2 border-contest-secondary/30 focus:border-contest-secondary"
+                disabled={isLoading}
+              />
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="btn-contest w-full text-lg py-4 shadow-xl hover:shadow-2xl transition-all duration-300"
+              disabled={isLoading || !name.trim() || !email.trim()}
+            >
+              {isLoading ? (
+                <>
+                  <div className="w-6 h-6 mr-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Joining Contest...
+                </>
+              ) : (
+                <>
+                  <Trophy className="w-6 h-6 mr-3" />
+                  Join Challenge
+                  <Sparkles className="w-6 h-6 ml-3 animate-pulse" />
+                </>
+              )}
+            </Button>
+          </form>
+          
+          <div className="text-center mt-6 text-sm text-muted-foreground">
+            <p>✨ Create amazing prompts and compete for the top spot! ✨</p>
+          </div>
         </Card>
       </div>
     </div>

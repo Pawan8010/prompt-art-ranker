@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users, Upload, Save, RefreshCw, ImageIcon, Star } from "lucide-react";
+import { Trophy, Crown, Medal, Award, Eye, EyeOff, Download, BarChart3, Target, Sparkles, Users, Upload, Save, RefreshCw, ImageIcon, Star, User } from "lucide-react";
 import { toast } from "sonner";
 
 interface Submission {
@@ -18,6 +18,7 @@ interface Submission {
   timestamp: string;
   participantName: string;
   participantEmail: string;
+  participantId: string;
 }
 
 const AdminPanel = () => {
@@ -28,6 +29,7 @@ const AdminPanel = () => {
   const [newTargetImage, setNewTargetImage] = useState("");
   const [newTargetPrompt, setNewTargetPrompt] = useState("");
   const [imagePreview, setImagePreview] = useState("");
+  const [participants, setParticipants] = useState<any[]>([]);
 
   const ADMIN_PASSWORD = "Pawan@8010";
   
@@ -52,9 +54,15 @@ const AdminPanel = () => {
   useEffect(() => {
     if (isAuthenticated) {
       loadSubmissions();
+      loadParticipants();
       setCurrentTarget(getCurrentTarget());
     }
   }, [isAuthenticated]);
+
+  const loadParticipants = () => {
+    const stored = JSON.parse(localStorage.getItem('contest-participants') || '[]');
+    setParticipants(stored);
+  };
 
   // Enhanced scoring algorithm for proper leaderboard
   const calculateEnhancedScore = (prompt: string, referencePrompt: string): { score: number, similarity: number, feedback: string } => {
@@ -168,10 +176,12 @@ const AdminPanel = () => {
   };
 
   const handleResetContest = () => {
-    if (confirm("Are you sure you want to clear all submissions? This action cannot be undone.")) {
+    if (confirm("Are you sure you want to clear all submissions and participants? This action cannot be undone.")) {
       localStorage.removeItem('contest-submissions');
+      localStorage.removeItem('contest-participants');
       setSubmissions([]);
-      toast.success("Contest reset successfully!");
+      setParticipants([]);
+      toast.success("Contest completely reset!");
     }
   };
 
@@ -203,11 +213,13 @@ const AdminPanel = () => {
 
   const exportData = () => {
     const csvContent = [
-      ['Rank', 'Participant', 'Email', 'Score', 'Similarity', 'Prompt', 'Timestamp'],
+      ['Rank', 'Participant', 'Email', 'Participant ID', 'Registration Time', 'Score', 'Similarity', 'Prompt', 'Timestamp'],
       ...submissions.map((sub, idx) => [
         idx + 1,
         sub.participantName || 'Anonymous',
         sub.participantEmail || '',
+        sub.participantId || 'N/A',
+        participants.find(p => p.email === sub.participantEmail)?.registrationTime || 'N/A',
         sub.score,
         sub.similarity || 0,
         `"${sub.prompt}"`,
@@ -219,7 +231,7 @@ const AdminPanel = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `contest-results-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `prompt-challenge-results-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Results exported successfully!");
@@ -307,15 +319,15 @@ const AdminPanel = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-5xl font-bold mb-3 text-white">Contest Control Center</h1>
+                <h1 className="text-5xl font-bold mb-3 text-white">Prompt Craft Challenge Control</h1>
                 <div className="flex items-center gap-6 text-blue-100 text-lg">
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
-                    <span>Total Participants: {submissions.length}</span>
+                    <span>Registered: {participants.length}/200</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <BarChart3 className="w-5 h-5" />
-                    <span>Smart Scoring Active</span>
+                    <span>Submissions: {submissions.length}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Target className="w-5 h-5 animate-pulse" />
@@ -345,6 +357,39 @@ const AdminPanel = () => {
             </div>
           </div>
         </Card>
+
+        {/* Participants Overview */}
+        {participants.length > 0 && (
+          <Card className="contest-card animate-slide-in">
+            <div className="relative">
+              <h2 className="text-3xl font-bold mb-6 bg-contest-gradient bg-clip-text text-transparent flex items-center gap-3">
+                <Users className="w-8 h-8 text-contest-primary" />
+                Registered Participants ({participants.length}/200)
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                {participants.slice(0, 6).map((participant, idx) => (
+                  <div key={participant.participantId} className="bg-muted/30 rounded-lg p-4 border border-contest-primary/20">
+                    <div className="flex items-center gap-3">
+                      <User className="w-8 h-8 text-contest-accent" />
+                      <div>
+                        <h4 className="font-semibold text-contest-primary">{participant.name}</h4>
+                        <p className="text-sm text-muted-foreground">{participant.email}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Joined: {new Date(participant.registrationTime).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {participants.length > 6 && (
+                <div className="text-center text-muted-foreground">
+                  ... and {participants.length - 6} more participants
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
 
         {/* Enhanced Target Image Management Section */}
         <Card className="contest-card animate-slide-in relative overflow-hidden">
