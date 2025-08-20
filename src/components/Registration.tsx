@@ -36,8 +36,13 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
     // Check if already registered
     const existingUser = existingParticipants.find((p: any) => p.email === email.trim());
     if (existingUser) {
-      // Login existing user
-      const userData = { name: existingUser.name, email: existingUser.email };
+      // Login existing user with complete data
+      const userData = { 
+        name: existingUser.name, 
+        email: existingUser.email,
+        participantId: existingUser.participantId,
+        registrationTime: existingUser.registrationTime
+      };
       localStorage.setItem('participant-data', JSON.stringify(userData));
       toast.success(`Welcome back, ${existingUser.name}! 🎉`);
       onRegistrationComplete(userData);
@@ -45,7 +50,7 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
       return;
     }
 
-    // Check participant limit (increased to 200)
+    // Check participant limit (set to 200)
     if (existingParticipants.length >= 200) {
       toast.error("Contest is full! Maximum 200 participants allowed.");
       setIsLoading(false);
@@ -60,7 +65,7 @@ const Registration = ({ onRegistrationComplete }: RegistrationProps) => {
         name: name.trim(), 
         email: email.trim(),
         registrationTime: new Date().toISOString(),
-        participantId: Date.now()
+        participantId: existingParticipants.length + 1 // Sequential ID
       };
       
       // Store participant data

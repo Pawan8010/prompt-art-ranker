@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -42,9 +41,11 @@ const PromptSubmission = () => {
 
   useEffect(() => {
     setCurrentTarget(getCurrentTarget());
-    // Get participant data
+    // Get participant data and ensure it's properly loaded
     const userData = JSON.parse(localStorage.getItem('participant-data') || '{}');
-    setParticipantData(userData);
+    if (userData && userData.name) {
+      setParticipantData(userData);
+    }
   }, []);
 
   // Update word and character count when prompt changes
@@ -54,47 +55,103 @@ const PromptSubmission = () => {
     setCharCount(prompt.length);
   }, [prompt]);
 
-  // Improved image generation based on prompt keywords
-  const generateImageFromPrompt = (userPrompt: string) => {
-    const keywords = userPrompt.toLowerCase().split(/\s+/);
+  // Enhanced image generation with much better accuracy
+  const generateRelevantImage = (userPrompt: string) => {
+    const keywords = userPrompt.toLowerCase();
     
-    // Enhanced seed generation based on prompt content
-    let seed = 0;
-    for (let i = 0; i < userPrompt.length; i++) {
-      seed += userPrompt.charCodeAt(i) * (i + 1);
-    }
-    
-    // Different image categories based on keywords
-    const categories = {
-      nature: ['tree', 'forest', 'mountain', 'lake', 'flower', 'sunset', 'sky', 'cloud'],
-      fantasy: ['dragon', 'magic', 'wizard', 'castle', 'fairy', 'unicorn', 'mystical'],
-      urban: ['city', 'building', 'street', 'car', 'urban', 'modern', 'architecture'],
-      portrait: ['person', 'face', 'portrait', 'human', 'woman', 'man', 'child'],
-      abstract: ['abstract', 'colorful', 'pattern', 'geometric', 'artistic']
+    // Enhanced keyword categories with more specific matching
+    const imageCategories = {
+      dragon: {
+        patterns: ['dragon', 'drake', 'wyvern', 'fire breathing', 'scales', 'wings', 'mythical beast'],
+        images: [
+          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1569163139394-de4e4f43e4e3?w=512&h=512&fit=crop'
+        ]
+      },
+      sunset: {
+        patterns: ['sunset', 'sunrise', 'golden hour', 'orange sky', 'dusk', 'twilight', 'evening'],
+        images: [
+          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=512&h=512&fit=crop'
+        ]
+      },
+      sky: {
+        patterns: ['sky', 'clouds', 'cloudscape', 'heavens', 'atmosphere', 'air'],
+        images: [
+          'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop'
+        ]
+      },
+      nature: {
+        patterns: ['forest', 'tree', 'mountain', 'lake', 'river', 'landscape', 'natural', 'wilderness'],
+        images: [
+          'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=512&h=512&fit=crop'
+        ]
+      },
+      fantasy: {
+        patterns: ['magic', 'magical', 'mystical', 'enchanted', 'fairy', 'wizard', 'castle', 'unicorn'],
+        images: [
+          'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1569163139394-de4e4f43e4e3?w=512&h=512&fit=crop'
+        ]
+      },
+      urban: {
+        patterns: ['city', 'building', 'urban', 'street', 'architecture', 'skyscraper', 'metropolitan'],
+        images: [
+          'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1f?w=512&h=512&fit=crop'
+        ]
+      },
+      portrait: {
+        patterns: ['person', 'face', 'human', 'portrait', 'woman', 'man', 'people'],
+        images: [
+          'https://images.unsplash.com/photo-1494790108755-2616c96c2ec0?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=512&h=512&fit=crop',
+          'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=512&h=512&fit=crop'
+        ]
+      }
     };
-    
-    let categoryMatch = 'random';
-    let maxMatches = 0;
-    
-    for (const [category, categoryKeywords] of Object.entries(categories)) {
-      const matches = keywords.filter(word => categoryKeywords.includes(word)).length;
-      if (matches > maxMatches) {
-        maxMatches = matches;
-        categoryMatch = category;
+
+    // Find the best matching category
+    let bestMatch = null;
+    let maxScore = 0;
+
+    for (const [category, data] of Object.entries(imageCategories)) {
+      let score = 0;
+      for (const pattern of data.patterns) {
+        if (keywords.includes(pattern)) {
+          score += pattern.length; // Longer matches get higher scores
+        }
+      }
+      if (score > maxScore) {
+        maxScore = score;
+        bestMatch = category;
       }
     }
+
+    // If we found a good match, use a relevant image
+    if (bestMatch && maxScore > 0) {
+      const categoryData = imageCategories[bestMatch as keyof typeof imageCategories];
+      const randomIndex = Math.floor(Math.random() * categoryData.images.length);
+      return categoryData.images[randomIndex];
+    }
+
+    // Fallback to a generic but high-quality image
+    const fallbackImages = [
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=512&h=512&fit=crop',
+      'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=512&h=512&fit=crop',
+      'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=512&h=512&fit=crop'
+    ];
     
-    // Generate more relevant image based on category and prompt
-    const baseUrls = {
-      nature: `https://picsum.photos/512/512?random=${seed % 1000}&nature`,
-      fantasy: `https://picsum.photos/512/512?random=${seed % 1000}&fantasy`,
-      urban: `https://picsum.photos/512/512?random=${seed % 1000}&urban`,
-      portrait: `https://picsum.photos/512/512?random=${seed % 1000}&portrait`,
-      abstract: `https://picsum.photos/512/512?random=${seed % 1000}&abstract`,
-      random: `https://picsum.photos/512/512?random=${seed % 1000}`
-    };
-    
-    return baseUrls[categoryMatch as keyof typeof baseUrls] || baseUrls.random;
+    const seed = userPrompt.length + userPrompt.charCodeAt(0);
+    return fallbackImages[seed % fallbackImages.length];
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,8 +176,8 @@ const PromptSubmission = () => {
       toast.info("🖼️ Generating your image...");
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Generate improved image based on user's prompt
-      const userGeneratedImage = generateImageFromPrompt(prompt);
+      // Generate much more relevant image based on user's prompt
+      const userGeneratedImage = generateRelevantImage(prompt);
       setGeneratedImage(userGeneratedImage);
       
       // Calculate similarity score based on prompt matching (for admin use only)
@@ -217,7 +274,7 @@ const PromptSubmission = () => {
                     className="w-full h-64 object-cover rounded-2xl border-4 border-contest-accent/30 shadow-xl hover:scale-105 transition-transform duration-300"
                   />
                 </div>
-                <div className="text-center">
+                <div className="text-center relative">
                   <h3 className="font-semibold mb-4 text-contest-primary flex items-center justify-center gap-2">
                     <Sparkles className="w-5 h-5 animate-pulse" />
                     Your Creation
@@ -275,25 +332,29 @@ const PromptSubmission = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4">
-      {/* User Welcome Section */}
-      {participantData && (
+      {/* Enhanced User Welcome Section */}
+      {participantData && participantData.name && (
         <Card className="contest-card mb-6 animate-slide-in">
-          <div className="flex items-center gap-4 p-4">
+          <div className="flex items-center gap-4 p-6">
             <div className="relative">
               <User className="w-12 h-12 text-contest-primary" />
               <Crown className="w-6 h-6 text-contest-gold absolute -top-2 -right-2 animate-pulse" />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-contest-primary">
+              <h3 className="text-2xl font-bold text-contest-primary mb-1">
                 Welcome back, {participantData.name}! 🎨
               </h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-lg">
                 Ready to create your next masterpiece? Let your creativity flow!
               </p>
+              <p className="text-sm text-contest-accent mt-1">
+                Participant #{participantData.participantId || 'N/A'} • {participantData.email}
+              </p>
             </div>
-            <div className="text-right text-sm text-muted-foreground">
-              <p>Participant #{participantData.participantId || 'N/A'}</p>
-              <p>{participantData.email}</p>
+            <div className="text-right">
+              <div className="bg-contest-primary/20 rounded-full px-4 py-2">
+                <p className="text-sm font-semibold text-contest-primary">Active Artist</p>
+              </div>
             </div>
           </div>
         </Card>
