@@ -11,18 +11,15 @@ const Index = () => {
   const [isRegistered, setIsRegistered] = useState(false);
 
   useEffect(() => {
-    // Check if user is already registered
-    const participantData = localStorage.getItem('participant-data');
-    if (participantData) {
-      setIsRegistered(true);
-    }
+    // Always start with registration - don't auto-login
+    setIsRegistered(false);
   }, []);
 
   const handleRegistrationComplete = (userData: { name: string; email: string }) => {
     setIsRegistered(true);
   };
 
-  // If user is not registered and trying to access home, show registration
+  // Always show registration first for login
   if (!isRegistered && currentView === 'home') {
     return <Registration onRegistrationComplete={handleRegistrationComplete} />;
   }
